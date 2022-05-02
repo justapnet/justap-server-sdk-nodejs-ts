@@ -1,0 +1,30 @@
+{
+  "name": "java-justap-sdk-typescript",
+  "version": "v1.0.0",
+  "description": "swagger client for java-justap-sdk-typescript",
+  "author": "Swagger Codegen Contributors",
+  "keywords": [
+    "fetch",
+    "typescript",
+    "swagger-client",
+    "java-justap-sdk-typescript"
+  ],
+  "license": "Unlicense",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts" : {
+    "build": "tsc --outDir dist/",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "portable-fetch": "^3.0.0",
+    "node-rsa": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.9",
+    "typescript": "^4.0.3"
+  },
+  "publishConfig":{
+    "registry":""
+  }
+}
