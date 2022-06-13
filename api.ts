@@ -86,11 +86,11 @@ export class RequiredError extends Error {
  */
 export interface ExtraAlipayAgreementSignParamsAccessParams {
     /**
-     * 
+     * 目前支持以下值：1. ALIPAYAPP （钱包h5页面签约）2. QRCODE(扫码签约)3. QRCODEORSMS(扫码签约或者短信签约)
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsAccessParams
      */
-    channel?: string;
+    channel: string;
 }
 
 /**
@@ -100,41 +100,41 @@ export interface ExtraAlipayAgreementSignParamsAccessParams {
  */
 export interface ExtraAlipayAgreementSignParamsPeriodRuleParams {
     /**
-     * 
+     * 扣款执行时间execute_time是周期扣款产品必填，枚举值为TIMING和FIXED
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsPeriodRuleParams
      */
-    executeTime?: string;
+    executeTime: string;
     /**
-     * 
+     * 周期数period是周期扣款产品必填。与另一参数period_type组合使用确定扣款周期，例如period_type为DAY，period=90，则扣款周期为90天
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsPeriodRuleParams
      */
-    period?: string;
+    period: string;
     /**
-     * 
+     * 周期类型period_type是周期扣款产品必填，枚举值为DAY和MONTH
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsPeriodRuleParams
      */
-    periodType?: string;
+    periodType: string;
     /**
-     * 
+     * 单笔扣款金额single_amount是周期扣款产品必填，单位为元
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsPeriodRuleParams
      */
-    singleAmount?: string;
+    singleAmount: string;
     /**
-     * 
+     * 扣款总金额total_amount是周期扣款产品必填，单位为元
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsPeriodRuleParams
      */
-    totalAmount?: string;
+    totalAmount: string;
     /**
-     * 
+     * 扣款总笔数total_payments是周期扣款产品必填，单位为笔
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsPeriodRuleParams
      */
-    totalPayments?: string;
+    totalPayments: string;
 }
 
 /**
@@ -144,29 +144,29 @@ export interface ExtraAlipayAgreementSignParamsPeriodRuleParams {
  */
 export interface ExtraAlipayAgreementSignParamsSubMerchant {
     /**
-     * 
+     * 子商户id
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsSubMerchant
      */
-    subMerchantId?: string;
+    subMerchantId: string;
     /**
-     * 
+     * 子商户名称
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsSubMerchant
      */
-    subMerchantName?: string;
+    subMerchantName: string;
     /**
-     * 
+     * 子商户服务描述
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsSubMerchant
      */
-    subMerchantServiceDescription?: string;
+    subMerchantServiceDescription: string;
     /**
-     * 
+     * 子商户服务名称
      * @type {string}
      * @memberof ExtraAlipayAgreementSignParamsSubMerchant
      */
-    subMerchantServiceName?: string;
+    subMerchantServiceName: string;
 }
 
 /**
@@ -202,65 +202,65 @@ export interface ExtraAlipayInvoiceInfoKeyInfo {
  */
 export interface ExtraAlipayRoyaltyInfoRoyaltyDetailInfos {
     /**
-     * 
+     * 分账的金额，单位为元
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    amount?: string;
+    amount: string;
     /**
-     * 
+     * 分账的比例，值为20~100之间的整数，如：20，表示分账金额按20%来打分账
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    amountPercentage?: string;
+    amountPercentage: string;
     /**
-     * 
+     * 分账批次号，格式为：当天日期[yyyyMMdd] + 四位流水号，如：20120220-00001
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    batchNo?: string;
+    batchNo: string;
     /**
-     * 
+     * 分账描述信息
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    desc?: string;
+    desc: string;
     /**
-     * 
+     * 商户分账的外部关联号，用于关联到每一笔分账信息，商户可自定义，如一笔分账多笔，则需要为每一笔分账都保持唯一，如果为空，则有利于商户排查问题
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    outRelationId?: string;
+    outRelationId: string;
     /**
-     * 
+     * 分账序列号，表示分账执行的顺序，必须为正整数
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    serialNo?: string;
+    serialNo: string;
     /**
-     * 
+     * 如果转入账号类型为userId，本参数为接受分账金额的支付宝账号对应的支付宝唯一用户号。以2088开头的纯16位数字。 如果转入账号类型为bankIndex，本参数为28位的银行编号（商户和支付宝签约时确定）。如果转入账号类型为storeId，本参数为商户的门店ID。
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    transIn?: string;
+    transIn: string;
     /**
-     * 
+     * 接受分账金额的账户类型： userId：支付宝账号对应的支付宝唯一用户号。 bankIndex：分账到银行账户的银行编号。目前暂时只支持分账到一个银行编号。storeId：分账到门店对应的银行卡编号。默认值为userId。
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    transInType?: string;
+    transInType: string;
     /**
-     * 
+     * 如果转出账号类型为userId，本参数为要分账的支付宝账号对应的支付宝唯一用户号。以2088开头的纯16位数字。
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    transOut?: string;
+    transOut: string;
     /**
-     * 
+     * 要分账的账户类型。目前只支持userId：支付宝账号对应的支付宝唯一用户号。默认值为userId。
      * @type {string}
      * @memberof ExtraAlipayRoyaltyInfoRoyaltyDetailInfos
      */
-    transOutType?: string;
+    transOutType: string;
 }
 
 /**
@@ -348,6 +348,44 @@ export interface ExtraWechatpayDetailGoodsDetail {
 /**
  * 
  * @export
+ * @interface ExtraWechatpaySceneInfoH5Info
+ */
+export interface ExtraWechatpaySceneInfoH5Info {
+    /**
+     * 
+     * @type {string}
+     * @memberof ExtraWechatpaySceneInfoH5Info
+     */
+    appName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExtraWechatpaySceneInfoH5Info
+     */
+    appUrl?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExtraWechatpaySceneInfoH5Info
+     */
+    bundleId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExtraWechatpaySceneInfoH5Info
+     */
+    packageName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ExtraWechatpaySceneInfoH5Info
+     */
+    type?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface ExtraWechatpaySceneInfoStoreInfo
  */
 export interface ExtraWechatpaySceneInfoStoreInfo {
@@ -375,18 +413,6 @@ export interface ExtraWechatpaySceneInfoStoreInfo {
      * @memberof ExtraWechatpaySceneInfoStoreInfo
      */
     name?: string;
-}
-
-/**
- * 
- * @export
- * @enum {string}
- */
-export enum HealthCheckResponseServingStatus {
-    UNKNOWN = <any> 'UNKNOWN',
-    SERVING = <any> 'SERVING',
-    NOTSERVING = <any> 'NOT_SERVING',
-    SERVICEUNKNOWN = <any> 'SERVICE_UNKNOWN'
 }
 
 /**
@@ -686,7 +712,7 @@ export interface V1AlipayNotifyResponse {
 }
 
 /**
- * - BALANCE: 余额  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+ * - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
  * @export
  * @enum {string}
  */
@@ -716,197 +742,197 @@ export enum V1Channel {
  */
 export interface V1Charge {
     /**
-     * 
+     * 订单金额
      * @type {number}
      * @memberof V1Charge
      */
-    amount?: number;
+    amount: number;
     /**
-     * 
+     * 下单金额
      * @type {number}
      * @memberof V1Charge
      */
-    amountFee?: number;
+    amountFee: number;
     /**
-     * 
+     * 订单退款总金额
      * @type {number}
      * @memberof V1Charge
      */
-    amountRefund?: number;
+    amountRefund: number;
     /**
-     * 
+     * 分账金额
      * @type {number}
      * @memberof V1Charge
      */
-    amountRoyalty?: number;
+    amountRoyalty: number;
     /**
-     * 
+     * 结算金额，不一定有，视支付通道情况返回
      * @type {number}
      * @memberof V1Charge
      */
-    amountSettle?: number;
+    amountSettle: number;
     /**
-     * 
+     * 应用ID
      * @type {string}
      * @memberof V1Charge
      */
-    appId?: string;
+    appId: string;
     /**
-     * 
+     * 订单描述信息
      * @type {string}
      * @memberof V1Charge
      */
-    body?: string;
+    body: string;
     /**
-     * 
+     * 支付渠道
      * @type {V1Channel}
      * @memberof V1Charge
      */
-    channel?: V1Channel;
+    channel: V1Channel;
     /**
-     * 
+     * Charge 对象 id
      * @type {string}
      * @memberof V1Charge
      */
-    chargeId?: string;
+    chargeId: string;
     /**
-     * 
+     * 顾客IP
      * @type {string}
      * @memberof V1Charge
      */
-    clientIp?: string;
+    clientIp: string;
     /**
-     * 
+     * 是否关闭
      * @type {boolean}
      * @memberof V1Charge
      */
-    closed?: boolean;
+    closed: boolean;
     /**
-     * 
+     * 关闭时间
      * @type {Date}
      * @memberof V1Charge
      */
     closedAt?: Date;
     /**
-     * 
+     * Charge 对象创建时间
      * @type {Date}
      * @memberof V1Charge
      */
     createdAt?: Date;
     /**
-     * 
+     * 支付凭证
      * @type {ProtobufAny}
      * @memberof V1Charge
      */
     credential?: ProtobufAny;
     /**
-     * 
+     * 货币单位，当前仅支持 CNY
      * @type {string}
      * @memberof V1Charge
      */
-    currency?: string;
+    currency: string;
     /**
-     * 
+     * 描述信息
      * @type {string}
      * @memberof V1Charge
      */
-    description?: string;
+    description: string;
     /**
-     * 
+     * 支付渠道元数据
      * @type {V1ChargeExtra}
      * @memberof V1Charge
      */
     extra?: V1ChargeExtra;
     /**
-     * 
+     * 收单机构错误码
      * @type {string}
      * @memberof V1Charge
      */
-    failureCode?: string;
+    failureCode: string;
     /**
-     * 
+     * 收单机构错误描述信息
      * @type {string}
      * @memberof V1Charge
      */
-    failureMsg?: string;
+    failureMsg: string;
     /**
-     * 
+     * 表明是否是沙箱环境
      * @type {boolean}
      * @memberof V1Charge
      */
-    liveMode?: boolean;
+    liveMode: boolean;
     /**
-     * 
+     * 商户系统订单号，APP下需唯一
      * @type {string}
      * @memberof V1Charge
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
-     * 
+     * 订单元数据，原样返回
      * @type {{ [key: string]: string; }}
      * @memberof V1Charge
      */
     metadata?: { [key: string]: string; };
     /**
-     * 
+     * 表明是否已支付
      * @type {boolean}
      * @memberof V1Charge
      */
-    paid?: boolean;
+    paid: boolean;
     /**
-     * 
+     * 支付时间
      * @type {Date}
      * @memberof V1Charge
      */
     paidAt?: Date;
     /**
-     * 
+     * 表明是否包含退款，含退款失败的
      * @type {boolean}
      * @memberof V1Charge
      */
-    refunded?: boolean;
+    refunded: boolean;
     /**
-     * 
+     * Refund 对象列表
      * @type {Array<V1Refund>}
      * @memberof V1Charge
      */
     refunds?: Array<V1Refund>;
     /**
-     * 
+     * 表明是否已经撤销
      * @type {boolean}
      * @memberof V1Charge
      */
-    reversed?: boolean;
+    reversed: boolean;
     /**
-     * 
+     * 冲正时间
      * @type {Date}
      * @memberof V1Charge
      */
     reversedAt?: Date;
     /**
-     * 
+     * 订单描述主题
      * @type {string}
      * @memberof V1Charge
      */
-    subject?: string;
+    subject: string;
     /**
-     * 
+     * 订单过期时间
      * @type {Date}
      * @memberof V1Charge
      */
     timeExpire?: Date;
     /**
-     * 
+     * Charge 的支付单号
      * @type {string}
      * @memberof V1Charge
      */
-    transactionNo?: string;
+    transactionNo: string;
     /**
-     * 
+     * 订单生存时间，单位秒
      * @type {number}
      * @memberof V1Charge
      */
-    ttl?: number;
+    ttl: number;
 }
 
 /**
@@ -916,79 +942,79 @@ export interface V1Charge {
  */
 export interface V1ChargeExtra {
     /**
-     * 
+     * 支付宝 App 支付渠道元数据
      * @type {V1ExtraAlipayApp}
      * @memberof V1ChargeExtra
      */
     alipayApp?: V1ExtraAlipayApp;
     /**
-     * 
+     * 支付宝 刷脸 支付渠道元数据
      * @type {V1ExtraAlipayFace}
      * @memberof V1ChargeExtra
      */
     alipayFace?: V1ExtraAlipayFace;
     /**
-     * 
+     * 支付宝 小程序 支付渠道元数据
      * @type {V1ExtraAlipayLite}
      * @memberof V1ChargeExtra
      */
     alipayLite?: V1ExtraAlipayLite;
     /**
-     * 
+     * 支付宝 电脑网站 支付渠道元数据
      * @type {V1ExtraAlipayPage}
      * @memberof V1ChargeExtra
      */
     alipayPage?: V1ExtraAlipayPage;
     /**
-     * 
+     * 支付宝 当面付 支付渠道元数据
      * @type {V1ExtraAlipayQr}
      * @memberof V1ChargeExtra
      */
     alipayQr?: V1ExtraAlipayQr;
     /**
-     * 
+     * 支付宝 扫码(被扫) 支付渠道元数据
      * @type {V1ExtraAlipayScan}
      * @memberof V1ChargeExtra
      */
     alipayScan?: V1ExtraAlipayScan;
     /**
-     * 
+     * 支付宝 手机网站 支付渠道元数据
      * @type {V1ExtraAlipayWap}
      * @memberof V1ChargeExtra
      */
     alipayWap?: V1ExtraAlipayWap;
     /**
-     * 
+     * 微信支付 App 支付渠道元数据
      * @type {V1ExtraWechatpayApp}
      * @memberof V1ChargeExtra
      */
     wechatpayApp?: V1ExtraWechatpayApp;
     /**
-     * 
+     * 微信支付 H5 支付渠道元数据
      * @type {V1ExtraWechatpayH5}
      * @memberof V1ChargeExtra
      */
     wechatpayH5?: V1ExtraWechatpayH5;
     /**
-     * 
+     * 微信支付 公众号 支付渠道元数据
      * @type {V1ExtraWechatpayJsapi}
      * @memberof V1ChargeExtra
      */
     wechatpayJsapi?: V1ExtraWechatpayJsapi;
     /**
-     * 
+     * 微信支付 小程序 支付渠道元数据
      * @type {V1ExtraWechatpayLite}
      * @memberof V1ChargeExtra
      */
     wechatpayLite?: V1ExtraWechatpayLite;
     /**
-     * 
+     * 微信支付 扫码(被扫) 支付渠道元数据
      * @type {V1ExtraWechatpayNative}
      * @memberof V1ChargeExtra
      */
     wechatpayNative?: V1ExtraWechatpayNative;
     /**
-     * 
+     * 微信支付 扫码(被扫) 支付渠道元数据
      * @type {V1ExtraWechatpayScan}
      * @memberof V1ChargeExtra
      */
@@ -1102,7 +1128,7 @@ export interface V1CreateChargeRequest {
      */
     extra?: V1CreateChargeRequestExtra;
     /**
-     * [REQUIRED] 客户系统的交易单号（订单号），必须在应用下唯一。长度不超过32字符
+     * [REQUIRED] 客户系统的交易单号（订单号），必须在应用下唯一。长度不超过30个字符
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
@@ -1308,49 +1334,49 @@ export interface V1ExtraAlipayAgreementParams {
  */
 export interface V1ExtraAlipayAgreementSignParams {
     /**
-     * 
+     * 请按当前接入的方式进行填充，且输入值必须为文档中的参数取值范围
      * @type {ExtraAlipayAgreementSignParamsAccessParams}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
     accessParams?: ExtraAlipayAgreementSignParamsAccessParams;
     /**
-     * 
+     * 外部协议号
      * @type {string}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
-    externalAgreementNo?: string;
+    externalAgreementNo: string;
     /**
-     * 
+     * 外部用户唯一标识
      * @type {string}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
-    externalLogonId?: string;
+    externalLogonId: string;
     /**
-     * 
+     * 周期管控规则参数period_rule_params，在签约周期扣款产品（如CYCLE_PAY_AUTH_P）时必传，在签约其他产品时无需传入。 周期扣款产品，会按照这里传入的参数提示用户，并对发起扣款的时间、金额、次数等做相应限制。
      * @type {ExtraAlipayAgreementSignParamsPeriodRuleParams}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
     periodRuleParams?: ExtraAlipayAgreementSignParamsPeriodRuleParams;
     /**
-     * 
+     * 个人签约产品码
      * @type {string}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
-    personalProductCode?: string;
+    personalProductCode: string;
     /**
-     * 
+     * 签约回调地址
      * @type {string}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
-    signNotifyUrl?: string;
+    signNotifyUrl: string;
     /**
-     * 
+     * 签约场景
      * @type {string}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
-    signScene?: string;
+    signScene: string;
     /**
-     * 
+     * 此参数用于传递子商户信息，无特殊需求时不用关注。目前商户代扣、海外代扣、淘旅行信用住产品支持传入该参数（在销售方案中“是否允许自定义子商户信息”需要选是）。
      * @type {ExtraAlipayAgreementSignParamsSubMerchant}
      * @memberof V1ExtraAlipayAgreementSignParams
      */
@@ -1364,95 +1390,95 @@ export interface V1ExtraAlipayAgreementSignParams {
  */
 export interface V1ExtraAlipayApp {
     /**
-     * 
+     * 签约参数。如果希望在sdk中支付并签约，需要在这里传入签约信息。周期扣款场景 product_code 为 CYCLE_PAY_AUTH 时必填。
      * @type {V1ExtraAlipayAgreementSignParams}
      * @memberof V1ExtraAlipayApp
      */
     agreementSignParams?: V1ExtraAlipayAgreementSignParams;
     /**
-     * 
+     * [ONLY IN RESPONSE] 信用支付协议号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    creditAgreementId?: string;
+    creditAgreementId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 信用支付业务订单号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    creditBizOrderId?: string;
+    creditBizOrderId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 信用支付模式
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    creditPayMode?: string;
+    creditPayMode: string;
     /**
-     * 
+     * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    disablePayChannels?: string;
+    disablePayChannels: string;
     /**
-     * 
+     * 可用渠道
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    enablePayChannels?: string;
+    enablePayChannels: string;
     /**
-     * 
+     * 外部指定买家
      * @type {V1ExtraAlipayExtUserInfo}
      * @memberof V1ExtraAlipayApp
      */
     extUserInfo?: V1ExtraAlipayExtUserInfo;
     /**
-     * 
+     * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
      * @memberof V1ExtraAlipayApp
      */
     extendParams?: V1ExtraAlipayExtendParams;
     /**
-     * 
+     * 商品明细列表
      * @type {Array<V1ExtraAlipayGoodsDetail>}
      * @memberof V1ExtraAlipayApp
      */
     goodsDetail?: Array<V1ExtraAlipayGoodsDetail>;
     /**
-     * 
+     * 商品类型
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    goodsType?: string;
+    goodsType: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 商户订单号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] App 用于拉起支付的请求字符串
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    payParam?: string;
+    payParam: string;
     /**
-     * 
+     * 销售产品码，商家和支付宝签约的产品码
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    productCode?: string;
+    productCode: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付宝卖家支付宝用户ID
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    sellerId?: string;
+    sellerId: string;
     /**
-     * 
+     * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    storeId?: string;
+    storeId: string;
 }
 
 /**
@@ -1494,47 +1520,47 @@ export interface V1ExtraAlipayBusinessParams {
  */
 export interface V1ExtraAlipayExtUserInfo {
     /**
-     * 
+     * 真实用户的证件号码
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    certNo?: string;
+    certNo: string;
     /**
-     * 
+     * 真实用户的证件类型
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    certType?: string;
+    certType: string;
     /**
-     * 
+     * 是否是实名用户
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    fixBuyer?: string;
+    fixBuyer: string;
     /**
-     * 
+     * 真实用户的证件有效期的起始时间
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    minAge?: string;
+    minAge: string;
     /**
-     * 
+     * 真实用户的手机号码
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    mobile?: string;
+    mobile: string;
     /**
-     * 
+     * 真实用户的姓名
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    name?: string;
+    name: string;
     /**
-     * 
+     * 是否需要补充身份信息
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    needCheckInfo?: string;
+    needCheckInfo: string;
 }
 
 /**
@@ -1544,41 +1570,41 @@ export interface V1ExtraAlipayExtUserInfo {
  */
 export interface V1ExtraAlipayExtendParams {
     /**
-     * 
+     * 卡类型
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    cardType?: string;
+    cardType: string;
     /**
-     * 
+     * 使用花呗分期要进行的分期数
+     * @type {string}
+     * @memberof V1ExtraAlipayExtendParams
+     */
+    hbFqNum: string;
+    /**
+     * 使用花呗分期需要卖家承担的手续费比例的百分值，传入100代表100%
      * @type {number}
      * @memberof V1ExtraAlipayExtendParams
      */
-    hbFqNum?: number;
+    hbFqSellerPercent: number;
     /**
-     * 
-     * @type {number}
-     * @memberof V1ExtraAlipayExtendParams
-     */
-    hbFqSellerPercent?: number;
-    /**
-     * 
+     * 行业数据回流信息
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    industryRefluxInfo?: string;
+    industryRefluxInfo: string;
     /**
-     * 
+     * 指定收款支付宝用户名
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    specifiedSellerName?: string;
+    specifiedSellerName: string;
     /**
-     * 
+     * 系统商编号，该参数作为系统商返佣数据提取的依据，请填写系统商签约协议的PID
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    sysServiceProviderId?: string;
+    sysServiceProviderId: string;
 }
 
 /**
@@ -1587,12 +1613,6 @@ export interface V1ExtraAlipayExtendParams {
  * @interface V1ExtraAlipayFace
  */
 export interface V1ExtraAlipayFace {
-    /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayFace
-     */
-    hahaha?: string;
 }
 
 /**
@@ -1628,59 +1648,59 @@ export interface V1ExtraAlipayFundBillList {
  */
 export interface V1ExtraAlipayGoodsDetail {
     /**
-     * 
+     * 支付宝商品编号
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    alipayGoodsId?: string;
+    alipayGoodsId: string;
     /**
-     * 
+     * 商品描述
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    body?: string;
+    body: string;
     /**
-     * 
+     * 商品类目树
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    categoriesTree?: string;
+    categoriesTree: string;
     /**
-     * 
+     * 商品类目
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    goodsCategory?: string;
+    goodsCategory: string;
     /**
-     * 
+     * 商品编号
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    goodsId?: string;
+    goodsId: string;
     /**
-     * 
+     * 商品名称
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    goodsName?: string;
+    goodsName: string;
     /**
-     * 
+     * 价格
      * @type {number}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    price?: number;
+    price: number;
     /**
-     * 
+     * 商品数量
      * @type {number}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    quantity?: number;
+    quantity: number;
     /**
-     * 
+     * 商品显示链接
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    showUrl?: string;
+    showUrl: string;
 }
 
 /**
@@ -1710,103 +1730,103 @@ export interface V1ExtraAlipayInvoiceInfo {
  */
 export interface V1ExtraAlipayLite {
     /**
-     * 
+     * 商品描述
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    body?: string;
+    body: string;
     /**
-     * 
+     * 业务扩展参数
      * @type {V1ExtraAlipayBusinessParams}
      * @memberof V1ExtraAlipayLite
      */
     businessParams?: V1ExtraAlipayBusinessParams;
     /**
-     * 
+     * 买家的支付宝唯一用户号（2088开头的16位纯数字）
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    buyerId?: string;
+    buyerId: string;
     /**
-     * 
+     * 可打折金额. 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000] 如果该值未传入，但传入了【订单总金额】，【不可打折金额】则该值默认为【订单总金额】-【不可打折金额】
      * @type {number}
      * @memberof V1ExtraAlipayLite
      */
     discountableAmount?: number;
     /**
-     * 
+     * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
      * @memberof V1ExtraAlipayLite
      */
     extendParams?: V1ExtraAlipayExtendParams;
     /**
-     * 
+     * 物流信息
      * @type {V1ExtraAlipayLogisticsDetail}
      * @memberof V1ExtraAlipayLite
      */
     logisticsDetail?: V1ExtraAlipayLogisticsDetail;
     /**
-     * 
+     * 商户操作员编号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    operatorId?: string;
+    operatorId: string;
     /**
-     * 
+     * 销售产品码，商家和支付宝签约的产品码，为固定值 FACE_TO_FACE_PAYMENT
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    productCode?: string;
+    productCode: string;
     /**
-     * 
+     * 收货信息
      * @type {V1ExtraAlipayReceiverAddressInfo}
      * @memberof V1ExtraAlipayLite
      */
     receiverAddressInfo?: V1ExtraAlipayReceiverAddressInfo;
     /**
-     * 
+     * 卖家支付宝用户号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    sellerId?: string;
+    sellerId: string;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraAlipaySettleInfo}
      * @memberof V1ExtraAlipayLite
      */
     settleInfo?: V1ExtraAlipaySettleInfo;
     /**
-     * 
+     * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    storeId?: string;
+    storeId: string;
     /**
-     * 
+     * 商户机具终端编号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    terminalId?: string;
+    terminalId: string;
     /**
-     * 
+     * 绝对超时时间，格式为yyyy-MM-dd HH:mm:ss
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 订单有效时间，该时间段内订单可以进行支付，结束后订单将关闭，天数为0表示永久有效
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    timeoutExpress?: string;
+    timeoutExpress: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付宝交易号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    tradeNo?: string;
+    tradeNo: string;
     /**
-     * 
+     * 不可打折金额. 不参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000] 如果该值未传入，但传入了【订单总金额】,【可打折金额】，则该值默认为【订单总金额】-【可打折金额】
      * @type {number}
      * @memberof V1ExtraAlipayLite
      */
@@ -1834,133 +1854,133 @@ export interface V1ExtraAlipayLogisticsDetail {
  */
 export interface V1ExtraAlipayPage {
     /**
-     * 
+     * 签约参数。如果希望在sdk中支付并签约，需要在这里传入签约信息。周期扣款场景 product_code 为 CYCLE_PAY_AUTH 时必填。
      * @type {V1ExtraAlipayAgreementSignParams}
      * @memberof V1ExtraAlipayPage
      */
     agreementSignParams?: V1ExtraAlipayAgreementSignParams;
     /**
-     * 
+     * 业务扩展参数
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    businessParams?: number;
+    businessParams: number;
     /**
-     * 
+     * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    disablePayChannels?: string;
+    disablePayChannels: string;
     /**
-     * 
+     * 可用渠道
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    enablePayChannels?: string;
+    enablePayChannels: string;
     /**
-     * 
+     * 支付宝用户信息
      * @type {V1ExtraAlipayExtUserInfo}
      * @memberof V1ExtraAlipayPage
      */
     extUserInfo?: V1ExtraAlipayExtUserInfo;
     /**
-     * 
+     * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
      * @memberof V1ExtraAlipayPage
      */
     extendParams?: V1ExtraAlipayExtendParams;
     /**
-     * 
+     * 商品明细列表
      * @type {Array<V1ExtraAlipayGoodsDetail>}
      * @memberof V1ExtraAlipayPage
      */
     goodsDetail?: Array<V1ExtraAlipayGoodsDetail>;
     /**
-     * 
+     * 商品类型
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    goodsType?: string;
+    goodsType: string;
     /**
-     * 
+     * 支付宝用户ID
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    integrationType?: number;
+    integrationType: number;
     /**
-     * 
+     * 发票信息
      * @type {V1ExtraAlipayInvoiceInfo}
      * @memberof V1ExtraAlipayPage
      */
     invoiceInfo?: V1ExtraAlipayInvoiceInfo;
     /**
-     * 
+     * [ONLY IN RESPONSE] 商户订单号
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付链接
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    payUrl?: string;
+    payUrl: string;
     /**
-     * 
+     * 优惠参数
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    promoParams?: string;
+    promoParams: string;
     /**
-     * 
+     * 扫码支付模式
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    qrPayMode?: string;
+    qrPayMode: string;
     /**
-     * 
+     * 二维码宽度
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    qrcodeWidth?: number;
+    qrcodeWidth: number;
     /**
-     * 
+     * 请求来源地址
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    requestFromUrl?: number;
+    requestFromUrl: number;
     /**
-     * 
+     * 分账类型卖家的分账类型，目前只支持传入ROYALTY（普通分账类型）。
      * @type {V1ExtraAlipayRoyaltyInfo}
      * @memberof V1ExtraAlipayPage
      */
     royaltyInfo?: V1ExtraAlipayRoyaltyInfo;
     /**
-     * 
+     * [ONLY IN RESPONSE] 收款支付宝用户ID
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    sellerId?: string;
+    sellerId: string;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraAlipaySettleInfo}
      * @memberof V1ExtraAlipayPage
      */
     settleInfo?: V1ExtraAlipaySettleInfo;
     /**
-     * 
+     * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    storeId?: string;
+    storeId: string;
     /**
-     * 
+     * 二级商户信息
      * @type {V1ExtraAlipaySubMerchant}
      * @memberof V1ExtraAlipayPage
      */
     subMerchant?: V1ExtraAlipaySubMerchant;
     /**
-     * 
+     * 订单失效时间
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
@@ -1988,71 +2008,71 @@ export interface V1ExtraAlipayPayParams {
  */
 export interface V1ExtraAlipayQr {
     /**
-     * 
+     * 买家的支付宝唯一用户号（2088开头的16位纯数字）
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    buyerId?: string;
+    buyerId: string;
     /**
-     * 
+     * 可打折金额. 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000] 如果该值未传入，但传入了【订单总金额】，【不可打折金额】则该值默认为【订单总金额】-【不可打折金额】
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
     discountableAmount?: string;
     /**
-     * 
+     * 商品明细列表
      * @type {Array<V1ExtraAlipayGoodsDetail>}
      * @memberof V1ExtraAlipayQr
      */
     goodsDetail?: Array<V1ExtraAlipayGoodsDetail>;
     /**
-     * 
+     * 商户操作员编号
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    operatorId?: string;
+    operatorId: string;
     /**
-     * 
+     * 销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    productCode?: string;
+    productCode: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 二维码
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    qrCode?: string;
+    qrCode: string;
     /**
-     * 
+     * 支付场景。 条码支付，取值：bar_code； 声波支付，取值：wave_code
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    qrCodeTimeoutExpress?: string;
+    qrCodeTimeoutExpress: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 二维码图片的URL地址
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    qrLink?: string;
+    qrLink: string;
     /**
-     * 
+     * 该笔订单允许的最晚付款时间，逾期将关闭交易。取值范围：1m～15d。m-分钟，h-小时，d-天，1c-当天（1c-当天的情况下，无论交易何时创建，都在0点关闭）。 该参数数值不接受小数点， 如 1.5h，可转换为 90m。注：若为空，则默认为15d。
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
     queryOptions?: string;
     /**
-     * 
+     * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    storeId?: string;
+    storeId: string;
     /**
-     * 
+     * 商户机具终端编号
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    terminalId?: string;
+    terminalId: string;
 }
 
 /**
@@ -2100,17 +2120,17 @@ export interface V1ExtraAlipayReceiverAddressInfo {
  */
 export interface V1ExtraAlipayRoyaltyInfo {
     /**
-     * 
+     * 分账明细的信息，可以描述多条分账指令，json数组。
      * @type {ExtraAlipayRoyaltyInfoRoyaltyDetailInfos}
      * @memberof V1ExtraAlipayRoyaltyInfo
      */
     royaltyDetailInfos?: ExtraAlipayRoyaltyInfoRoyaltyDetailInfos;
     /**
-     * 
+     * 周期类型period_type是周期扣款产品必填，枚举值为DAY和MONTH
      * @type {string}
      * @memberof V1ExtraAlipayRoyaltyInfo
      */
-    royaltyType?: string;
+    royaltyType: string;
 }
 
 /**
@@ -2120,211 +2140,211 @@ export interface V1ExtraAlipayRoyaltyInfo {
  */
 export interface V1ExtraAlipayScan {
     /**
-     * 
+     * 预授权类型
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    advancePaymentType?: string;
+    advancePaymentType: string;
     /**
-     * 
+     * 协议参数
      * @type {V1ExtraAlipayAgreementParams}
      * @memberof V1ExtraAlipayScan
      */
     agreementParams?: V1ExtraAlipayAgreementParams;
     /**
-     * 
+     * 用户的条码
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    authCode?: string;
+    authCode: string;
     /**
-     * 
+     * 授权确认方式
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    authConfirmMode?: string;
+    authConfirmMode: string;
     /**
-     * 
+     * 授权号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    authNo?: string;
+    authNo: string;
     /**
-     * 
+     * 买家的支付宝用户id
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    buyerId?: string;
+    buyerId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 买家支付宝账号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    buyerLogonId?: string;
+    buyerLogonId: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    buyerPayAmount?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    buyerUserId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    discountAmount?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    discountGoodsDetail?: string;
-    /**
-     * 
+     * [ONLY IN RESPONSE] 付款金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    discountableAmount?: number;
+    buyerPayAmount: number;
     /**
-     * 
+     * [ONLY IN RESPONSE] 买家在支付宝的用户id
+     * @type {string}
+     * @memberof V1ExtraAlipayScan
+     */
+    buyerUserId: string;
+    /**
+     * [ONLY IN RESPONSE] 商家优惠金额
+     * @type {number}
+     * @memberof V1ExtraAlipayScan
+     */
+    discountAmount: number;
+    /**
+     * [ONLY IN RESPONSE] 商家优惠商品明细
+     * @type {string}
+     * @memberof V1ExtraAlipayScan
+     */
+    discountGoodsDetail: string;
+    /**
+     * 可打折金额
+     * @type {number}
+     * @memberof V1ExtraAlipayScan
+     */
+    discountableAmount: number;
+    /**
+     * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
      * @memberof V1ExtraAlipayScan
      */
     extendParams?: V1ExtraAlipayExtendParams;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付金额信息
      * @type {V1ExtraAlipayFundBillList}
      * @memberof V1ExtraAlipayScan
      */
     fundBillList?: V1ExtraAlipayFundBillList;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付时间
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    gmtPayment?: string;
+    gmtPayment: string;
     /**
-     * 
+     * 商品明细列表
      * @type {Array<V1ExtraAlipayGoodsDetail>}
      * @memberof V1ExtraAlipayScan
      */
     goodsDetail?: Array<V1ExtraAlipayGoodsDetail>;
     /**
-     * 
-     * @type {string}
+     * [ONLY IN RESPONSE] 开票金额
+     * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    invoiceAmount?: string;
+    invoiceAmount: number;
     /**
-     * 
+     * 是否异步支付
      * @type {V1ExtraAlipayPayParams}
      * @memberof V1ExtraAlipayScan
      */
     isAsyncPay?: V1ExtraAlipayPayParams;
     /**
-     * 
+     * [ONLY IN RESPONSE] 平台优惠金额
+     * @type {number}
+     * @memberof V1ExtraAlipayScan
+     */
+    mdiscountAmount: number;
+    /**
+     * 商户操作员编号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    mdiscountAmount?: string;
+    operatorId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付宝返回的支付参数
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    operatorId?: string;
+    payParams: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 集分宝金额
+     * @type {number}
+     * @memberof V1ExtraAlipayScan
+     */
+    pointAmount: number;
+    /**
+     * 销售产品码
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    payParams?: string;
+    productCode: string;
     /**
-     * 
+     * 商户授权查询类型
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    pointAmount?: string;
+    queryOptions: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 实收金额
+     * @type {number}
+     * @memberof V1ExtraAlipayScan
+     */
+    receiptAmount: number;
+    /**
+     * 请求方机构id
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    productCode?: string;
+    requestOrgPid: string;
     /**
-     * 
+     * 支付场景
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    queryOptions?: string;
+    scene: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    receiptAmount?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    requestOrgPid?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    scene?: string;
-    /**
-     * 
+     * 结算信息
      * @type {V1ExtraAlipaySettleInfo}
      * @memberof V1ExtraAlipayScan
      */
     settleInfo?: V1ExtraAlipaySettleInfo;
     /**
-     * 
+     * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    storeId?: string;
+    storeId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 商户门店名称
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    storeName?: string;
+    storeName: string;
     /**
-     * 
+     * 子商户信息
      * @type {V1ExtraAlipaySubMerchant}
      * @memberof V1ExtraAlipayScan
      */
     subMerchant?: V1ExtraAlipaySubMerchant;
     /**
-     * 
+     * 商户机具终端编号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    terminalId?: string;
+    terminalId: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraAlipayScan
-     */
-    totalAmount?: string;
-    /**
-     * 
+     * [ONLY IN RESPONSE] 订单金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    undiscountableAmount?: number;
+    totalAmount: number;
     /**
-     * 
+     * 不可打折金额
+     * @type {number}
+     * @memberof V1ExtraAlipayScan
+     */
+    undiscountableAmount: number;
+    /**
+     * [ONLY IN RESPONSE] 商家优惠明细列表
      * @type {V1ExtraAlipayVoucherDetailList}
      * @memberof V1ExtraAlipayScan
      */
@@ -2358,17 +2378,17 @@ export interface V1ExtraAlipaySettleInfo {
  */
 export interface V1ExtraAlipaySubMerchant {
     /**
-     * 
+     * 商户的支付宝user_id
      * @type {string}
      * @memberof V1ExtraAlipaySubMerchant
      */
-    merchantId?: string;
+    merchantId: string;
     /**
-     * 
+     * 商户类型，1：支付宝服务窗，2：第三方App，目前只支持支付宝服务窗，默认为1
      * @type {string}
      * @memberof V1ExtraAlipaySubMerchant
      */
-    merchantType?: string;
+    merchantType: string;
 }
 
 /**
@@ -2452,107 +2472,107 @@ export interface V1ExtraAlipayVoucherDetailList {
  */
 export interface V1ExtraAlipayWap {
     /**
-     * 
+     * 授权码
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    authToken?: string;
+    authToken: string;
     /**
-     * 
+     * 业务扩展参数
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    businessParams?: string;
+    businessParams: string;
     /**
-     * 
+     * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    disablePayChannels?: string;
+    disablePayChannels: string;
     /**
-     * 
+     * 可用渠道
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    enablePayChannels?: string;
+    enablePayChannels: string;
     /**
-     * 
+     * 支付宝用户信息
      * @type {V1ExtraAlipayExtUserInfo}
      * @memberof V1ExtraAlipayWap
      */
     extUserInfo?: V1ExtraAlipayExtUserInfo;
     /**
-     * 
+     * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
      * @memberof V1ExtraAlipayWap
      */
     extendParams?: V1ExtraAlipayExtendParams;
     /**
-     * 
+     * 支付金额信息
      * @type {Array<string>}
      * @memberof V1ExtraAlipayWap
      */
     fundBillList?: Array<string>;
     /**
-     * 
+     * 商品明细列表
      * @type {Array<V1ExtraAlipayGoodsDetail>}
      * @memberof V1ExtraAlipayWap
      */
     goodsDetail?: Array<V1ExtraAlipayGoodsDetail>;
     /**
-     * 
+     * 商品类型
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    goodsType?: string;
+    goodsType: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 商户订单号
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 支付链接
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    payUrl?: string;
+    payUrl: string;
     /**
-     * 
+     * 销售产品码
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    productCode?: string;
+    productCode: string;
     /**
-     * 
+     * 优惠参数
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    promoParams?: string;
+    promoParams: string;
     /**
-     * 
+     * 支付取消跳转的地址
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    quitUrl?: string;
+    quitUrl: string;
     /**
-     * 
+     * 支付成功跳转的地址
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    returnUrl?: string;
+    returnUrl: string;
     /**
-     * 
+     * [ONLY IN RESPONSE] 收款支付宝用户ID
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    sellerId?: string;
+    sellerId: string;
     /**
-     * 
+     * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    storeId?: string;
+    storeId: string;
     /**
      * 
      * @type {V1ExtraAlipayVoucherDetailList}
@@ -2568,59 +2588,59 @@ export interface V1ExtraAlipayWap {
  */
 export interface V1ExtraWechatpayApp {
     /**
-     * 
+     * app拉起支付配置信息
      * @type {V1ExtraWechatpayAppConfig}
      * @memberof V1ExtraWechatpayApp
      */
     appConfig?: V1ExtraWechatpayAppConfig;
     /**
-     * 
+     * 元数据
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
     attach?: string;
     /**
-     * 
+     * 商品详情
      * @type {V1ExtraWechatpayDetail}
      * @memberof V1ExtraWechatpayApp
      */
     detail?: V1ExtraWechatpayDetail;
     /**
-     * 
+     * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
-     * 
+     * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    prepayId?: string;
+    prepayId: string;
     /**
-     * 
+     * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
      * @memberof V1ExtraWechatpayApp
      */
     sceneInfo?: V1ExtraWechatpaySceneInfo;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraWechatpaySettleInfo}
      * @memberof V1ExtraWechatpayApp
      */
     settleInfo?: V1ExtraWechatpaySettleInfo;
     /**
-     * 
+     * 交易结束时间
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -2630,47 +2650,47 @@ export interface V1ExtraWechatpayApp {
  */
 export interface V1ExtraWechatpayAppConfig {
     /**
-     * 
+     * 应用appid
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    appid?: string;
+    appid: string;
     /**
-     * 
+     * 随机字符串
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    noncestr?: string;
+    noncestr: string;
     /**
-     * 
+     * 扩展字段
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    _package?: string;
+    _package: string;
     /**
-     * 
+     * 商户号
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    partnerid?: string;
+    partnerid: string;
     /**
-     * 
+     * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    prepayid?: string;
+    prepayid: string;
     /**
-     * 
+     * 签名
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    sign?: string;
+    sign: string;
     /**
-     * 
+     * 时间戳
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    timestamp?: string;
+    timestamp: string;
 }
 
 /**
@@ -2680,41 +2700,41 @@ export interface V1ExtraWechatpayAppConfig {
  */
 export interface V1ExtraWechatpayAppletConfig {
     /**
-     * 
+     * 小程序appid
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    appId?: string;
+    appId: string;
     /**
-     * 
+     * 随机字符串
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    nonceStr?: string;
+    nonceStr: string;
     /**
-     * 
+     * 扩展字段
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    _package?: string;
+    _package: string;
     /**
-     * 
+     * 签名
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    paySign?: string;
+    paySign: string;
     /**
-     * 
+     * 签名类型
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    signType?: string;
+    signType: string;
     /**
-     * 
+     * 时间戳
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    timeStamp?: string;
+    timeStamp: string;
 }
 
 /**
@@ -2750,77 +2770,77 @@ export interface V1ExtraWechatpayDetail {
  */
 export interface V1ExtraWechatpayH5 {
     /**
-     * 
+     * 元数据
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
     attach?: string;
     /**
-     * 
+     * 商品详情
      * @type {V1ExtraWechatpayDetail}
      * @memberof V1ExtraWechatpayH5
      */
     detail?: V1ExtraWechatpayDetail;
     /**
-     * 
+     * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
-     * 
+     * 支付签名
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    paySign?: string;
+    paySign: string;
     /**
-     * 
+     * 支付链接
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    payUrl?: string;
+    payUrl: string;
     /**
-     * 
+     * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    prepayId?: string;
+    prepayId: string;
     /**
-     * 
+     * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
      * @memberof V1ExtraWechatpayH5
      */
     sceneInfo?: V1ExtraWechatpaySceneInfo;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraWechatpaySettleInfo}
      * @memberof V1ExtraWechatpayH5
      */
     settleInfo?: V1ExtraWechatpaySettleInfo;
     /**
-     * 
+     * 交易结束时间
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    timeStart?: string;
+    timeStart: string;
     /**
-     * 
+     * WAP网站名
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    wapName?: string;
+    wapName: string;
     /**
-     * 
+     * WAP网站URL
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    wapUrl?: string;
+    wapUrl: string;
 }
 
 /**
@@ -2830,65 +2850,65 @@ export interface V1ExtraWechatpayH5 {
  */
 export interface V1ExtraWechatpayJsapi {
     /**
-     * 
+     * 元数据
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
     attach?: string;
     /**
-     * 
+     * 商品详情
      * @type {V1ExtraWechatpayDetail}
      * @memberof V1ExtraWechatpayJsapi
      */
     detail?: V1ExtraWechatpayDetail;
     /**
-     * 
+     * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
-     * 
+     * jsapi支付配置信息
      * @type {V1ExtraWechatpayJsapiConfig}
      * @memberof V1ExtraWechatpayJsapi
      */
     jsapiConfig?: V1ExtraWechatpayJsapiConfig;
     /**
-     * 
+     * 支付者信息
      * @type {V1ExtraWechatpayPayer}
      * @memberof V1ExtraWechatpayJsapi
      */
     payer?: V1ExtraWechatpayPayer;
     /**
-     * 
+     * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    prepayId?: string;
+    prepayId: string;
     /**
-     * 
+     * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
      * @memberof V1ExtraWechatpayJsapi
      */
     sceneInfo?: V1ExtraWechatpaySceneInfo;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraWechatpaySettleInfo}
      * @memberof V1ExtraWechatpayJsapi
      */
     settleInfo?: V1ExtraWechatpaySettleInfo;
     /**
-     * 
+     * 交易结束时间
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -2898,41 +2918,41 @@ export interface V1ExtraWechatpayJsapi {
  */
 export interface V1ExtraWechatpayJsapiConfig {
     /**
-     * 
+     * 公众号appid
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    appId?: string;
+    appId: string;
     /**
-     * 
+     * 随机字符串
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    nonceStr?: string;
+    nonceStr: string;
     /**
-     * 
+     * 扩展字段
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    _package?: string;
+    _package: string;
     /**
-     * 
+     * 签名
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    paySign?: string;
+    paySign: string;
     /**
-     * 
+     * 签名类型
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    signType?: string;
+    signType: string;
     /**
-     * 
+     * 时间戳
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    timeStamp?: string;
+    timeStamp: string;
 }
 
 /**
@@ -2942,65 +2962,65 @@ export interface V1ExtraWechatpayJsapiConfig {
  */
 export interface V1ExtraWechatpayLite {
     /**
-     * 
+     * 小程序拉起支付配置信息
      * @type {V1ExtraWechatpayAppletConfig}
      * @memberof V1ExtraWechatpayLite
      */
     appletConfig?: V1ExtraWechatpayAppletConfig;
     /**
-     * 
+     * 元数据
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
     attach?: string;
     /**
-     * 
+     * 商品详情
      * @type {V1ExtraWechatpayDetail}
      * @memberof V1ExtraWechatpayLite
      */
     detail?: V1ExtraWechatpayDetail;
     /**
-     * 
+     * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
-     * 
+     * 付款人信息
      * @type {V1ExtraWechatpayPayer}
      * @memberof V1ExtraWechatpayLite
      */
     payer?: V1ExtraWechatpayPayer;
     /**
-     * 
+     * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    prepayId?: string;
+    prepayId: string;
     /**
-     * 
+     * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
      * @memberof V1ExtraWechatpayLite
      */
     sceneInfo?: V1ExtraWechatpaySceneInfo;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraWechatpaySettleInfo}
      * @memberof V1ExtraWechatpayLite
      */
     settleInfo?: V1ExtraWechatpaySettleInfo;
     /**
-     * 
+     * 交易结束时间
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3010,59 +3030,59 @@ export interface V1ExtraWechatpayLite {
  */
 export interface V1ExtraWechatpayNative {
     /**
-     * 
+     * 元数据
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
     attach?: string;
     /**
-     * 
+     * 商品详情
      * @type {V1ExtraWechatpayDetail}
      * @memberof V1ExtraWechatpayNative
      */
     detail?: V1ExtraWechatpayDetail;
     /**
-     * 
+     * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
-     * 
+     * 二维码数据
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    qrCode?: string;
+    qrCode: string;
     /**
-     * 
+     * 二维码链接
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    qrLink?: string;
+    qrLink: string;
     /**
-     * 
+     * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
      * @memberof V1ExtraWechatpayNative
      */
     sceneInfo?: V1ExtraWechatpaySceneInfo;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraWechatpaySettleInfo}
      * @memberof V1ExtraWechatpayNative
      */
     settleInfo?: V1ExtraWechatpaySettleInfo;
     /**
-     * 
+     * 交易过期时间
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3092,119 +3112,119 @@ export interface V1ExtraWechatpayPayer {
  */
 export interface V1ExtraWechatpayScan {
     /**
-     * 
+     * 元数据
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
     attach?: string;
     /**
-     * 
+     * 授权码
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    authCode?: string;
+    authCode: string;
     /**
-     * 
+     * 付款银行
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    bankType?: string;
+    bankType: string;
     /**
-     * 
+     * 现金支付金额
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    cashFee?: string;
+    cashFee: string;
     /**
-     * 
+     * 现金支付币种
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    cashFeeType?: string;
+    cashFeeType: string;
     /**
-     * 
+     * 商品详情
      * @type {V1ExtraWechatpayDetail}
      * @memberof V1ExtraWechatpayScan
      */
     detail?: V1ExtraWechatpayDetail;
     /**
-     * 
+     * 货币种类
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    feeType?: string;
+    feeType: string;
     /**
-     * 
+     * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
-     * 
+     * 是否关注公众账号
      * @type {boolean}
      * @memberof V1ExtraWechatpayScan
      */
-    isSubscribe?: boolean;
+    isSubscribe: boolean;
     /**
-     * 
+     * 付款人信息
      * @type {V1ExtraWechatpayPayer}
      * @memberof V1ExtraWechatpayScan
      */
     payer?: V1ExtraWechatpayPayer;
     /**
-     * 
+     * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
      * @memberof V1ExtraWechatpayScan
      */
     sceneInfo?: V1ExtraWechatpaySceneInfo;
     /**
-     * 
+     * 结算信息
      * @type {V1ExtraWechatpaySettleInfo}
      * @memberof V1ExtraWechatpayScan
      */
     settleInfo?: V1ExtraWechatpaySettleInfo;
     /**
-     * 
+     * 应结订单金额
+     * @type {number}
+     * @memberof V1ExtraWechatpayScan
+     */
+    settlementTotalFee: number;
+    /**
+     * 终端IP
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    settlementTotalFee?: string;
+    spbillCreateIp: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1ExtraWechatpayScan
-     */
-    spbillCreateIp?: string;
-    /**
-     * 
+     * 子商户是否关注公众账号
      * @type {boolean}
      * @memberof V1ExtraWechatpayScan
      */
-    subIsSubscribe?: boolean;
+    subIsSubscribe: boolean;
     /**
-     * 
+     * 子商户openid
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    subOpenid?: string;
+    subOpenid: string;
     /**
-     * 
+     * 支付完成时间
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    timeEnd?: string;
+    timeEnd: string;
     /**
-     * 
+     * 交易结束时间
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
-     * 
+     * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3219,6 +3239,12 @@ export interface V1ExtraWechatpaySceneInfo {
      * @memberof V1ExtraWechatpaySceneInfo
      */
     deviceId?: string;
+    /**
+     * 
+     * @type {ExtraWechatpaySceneInfoH5Info}
+     * @memberof V1ExtraWechatpaySceneInfo
+     */
+    h5Info?: ExtraWechatpaySceneInfoH5Info;
     /**
      * 
      * @type {string}
@@ -3248,20 +3274,6 @@ export interface V1ExtraWechatpaySettleInfo {
 }
 
 /**
- * 
- * @export
- * @interface V1HealthCheckResponse
- */
-export interface V1HealthCheckResponse {
-    /**
-     * 
-     * @type {HealthCheckResponseServingStatus}
-     * @memberof V1HealthCheckResponse
-     */
-    status?: HealthCheckResponseServingStatus;
-}
-
-/**
  * Refund 对象允许你可以对已经支付的 charge 对象发起退款请求。
  * @export
  * @interface V1Refund
@@ -3274,89 +3286,89 @@ export interface V1Refund {
      */
     account?: V1RefundExtra;
     /**
-     * 
+     * 退款金额
      * @type {number}
      * @memberof V1Refund
      */
-    amount?: number;
+    amount: number;
     /**
-     * 
+     * Charge 对象 id
      * @type {string}
      * @memberof V1Refund
      */
-    chargeId?: string;
+    chargeId: string;
     /**
-     * 
+     * 商户系统订单号
      * @type {string}
      * @memberof V1Refund
      */
-    chargeMerchantTradeId?: string;
+    chargeMerchantTradeId: string;
     /**
-     * 
+     * 退款创建时间
      * @type {Date}
      * @memberof V1Refund
      */
     createdAt?: Date;
     /**
-     * 
+     * 退款说明
      * @type {string}
      * @memberof V1Refund
      */
-    description?: string;
+    description: string;
     /**
-     * 
+     * 支付渠道失败错误码
      * @type {string}
      * @memberof V1Refund
      */
-    failureCode?: string;
+    failureCode: string;
     /**
-     * 
+     * 支付渠道失败原因描述
      * @type {string}
      * @memberof V1Refund
      */
-    failureMsg?: string;
+    failureMsg: string;
     /**
-     * 
+     * 退款是否成功
      * @type {boolean}
      * @memberof V1Refund
      */
-    isSuccess?: boolean;
+    isSuccess: boolean;
     /**
-     * 
+     * 元数据，原样返回
      * @type {{ [key: string]: string; }}
      * @memberof V1Refund
      */
     metadata?: { [key: string]: string; };
     /**
-     * 
+     * Refund 对象 ID
      * @type {string}
      * @memberof V1Refund
      */
-    refundId?: string;
+    refundId: string;
     /**
-     * 
+     * 退款单号
      * @type {string}
      * @memberof V1Refund
      */
-    refundNo?: string;
+    refundNo: string;
     /**
-     * 
+     * 退款状态
      * @type {string}
      * @memberof V1Refund
      */
-    status?: string;
+    status: string;
     /**
-     * 
+     * 退款成功时间
      * @type {Date}
      * @memberof V1Refund
      */
     successAt?: Date;
     /**
-     * 
+     * 交易号
      * @type {string}
      * @memberof V1Refund
      */
-    transactionNo?: string;
+    transactionNo: string;
 }
 
 /**
@@ -3400,7 +3412,7 @@ export interface V1RefundExtraAlipay {
  */
 export interface V1RefundExtraWechatPay {
     /**
-     * 订单金额信息
+     * 出资账户信息
      * @type {RefundExtraWechatPayAccount}
      * @memberof V1RefundExtraWechatPay
      */
@@ -3420,7 +3432,7 @@ export interface V1RefundExtraWechatPay {
  */
 export interface V1RefundListResponse {
     /**
-     * 
+     * Refund 对象
      * @type {Array<V1Refund>}
      * @memberof V1RefundListResponse
      */
@@ -3452,7 +3464,7 @@ export interface V1RefundListResponse {
  */
 export interface V1RefundResponse {
     /**
-     * 
+     * Refund 对象
      * @type {V1Refund}
      * @memberof V1RefundResponse
      */
@@ -3594,7 +3606,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -3937,7 +3949,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -4088,7 +4100,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -4194,7 +4206,7 @@ export class DefaultApi extends BaseAPI {
      * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
      * @param {boolean} [paid] [OPTIONAL] 是否已付款
      * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
      * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
