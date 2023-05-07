@@ -680,6 +680,12 @@ export interface SettlementAccountRecipientWechatpayChannelRecipient {
      */
     accountType?: SettlementAccountRecipientAccountType;
     /**
+     * 微信支付分账接收方 openid 所对应的公众号 ID
+     * @type {string}
+     * @memberof SettlementAccountRecipientWechatpayChannelRecipient
+     */
+    appId?: string;
+    /**
      * 是否强制校验收款人姓名
      * @type {boolean}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
@@ -721,6 +727,42 @@ export enum Tradev1Channel {
     WechatpayLite = <any> 'WechatpayLite',
     WechatpayFace = <any> 'WechatpayFace',
     WechatpayScan = <any> 'WechatpayScan'
+}
+
+/**
+ * - Alipay: 支付宝  - Wechatpay: 对应 MERCHANT_ID
+ * @export
+ * @enum {string}
+ */
+export enum Tradev1RoyaltyMethod {
+    RoyaltyMethodUnset = <any> 'RoyaltyMethodUnset',
+    Balance = <any> 'Balance',
+    Alipay = <any> 'Alipay',
+    Wechatpay = <any> 'Wechatpay'
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerCreateRoyaltyResponse
+ */
+export interface V1AcquirerCreateRoyaltyResponse {
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerQueryRoyaltyResponse
+ */
+export interface V1AcquirerQueryRoyaltyResponse {
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerRoyaltyNotifyResponse
+ */
+export interface V1AcquirerRoyaltyNotifyResponse {
 }
 
 /**
@@ -4116,10 +4158,10 @@ export interface V1Royalty {
     metadata?: { [key: string]: string; };
     /**
      * 
-     * @type {V1RoyaltyMethod}
+     * @type {Tradev1RoyaltyMethod}
      * @memberof V1Royalty
      */
-    method?: V1RoyaltyMethod;
+    method?: Tradev1RoyaltyMethod;
     /**
      * 对象类型
      * @type {string}
@@ -4209,18 +4251,6 @@ export interface V1RoyaltyListResponse {
 }
 
 /**
- * - Alipay: 支付宝  - Wechatpay: 对应 MERCHANT_ID
- * @export
- * @enum {string}
- */
-export enum V1RoyaltyMethod {
-    RoyaltyMethodUnset = <any> 'RoyaltyMethodUnset',
-    Balance = <any> 'Balance',
-    Alipay = <any> 'Alipay',
-    Wechatpay = <any> 'Wechatpay'
-}
-
-/**
  * 
  * @export
  * @enum {string}
@@ -4249,6 +4279,19 @@ export interface V1RoyaltyResponse {
      * @memberof V1RoyaltyResponse
      */
     object?: string;
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum V1RoyaltyRoutingRequestRoyaltyMethod {
+    ROYALTYMETHODUNKNOWN = <any> 'ROYALTY_METHOD_UNKNOWN',
+    CREATEROYALTY = <any> 'CREATE_ROYALTY',
+    QUERYROYALTY = <any> 'QUERY_ROYALTY',
+    FinishROYALTY = <any> 'Finish_ROYALTY',
+    RETURNROYALTY = <any> 'RETURN_ROYALTY'
 }
 
 /**
@@ -4351,10 +4394,10 @@ export interface V1RoyaltySettlement {
     metadata?: { [key: string]: string; };
     /**
      * 
-     * @type {V1RoyaltyMethod}
+     * @type {Tradev1RoyaltyMethod}
      * @memberof V1RoyaltySettlement
      */
-    method?: V1RoyaltyMethod;
+    method?: Tradev1RoyaltyMethod;
     /**
      * 对象类型
      * @type {string}
@@ -5059,30 +5102,6 @@ export interface V1WechatpayNotifyResponse {
      * @memberof V1WechatpayNotifyResponse
      */
     success?: boolean;
-}
-
-/**
- * 
- * @export
- * @interface V1WechatpayV3PartnerNotifyResponse
- */
-export interface V1WechatpayV3PartnerNotifyResponse {
-}
-
-/**
- * 
- * @export
- * @interface V1WechatpayV3PartnerQueryRoyaltyResponse
- */
-export interface V1WechatpayV3PartnerQueryRoyaltyResponse {
-}
-
-/**
- * 
- * @export
- * @interface V1WechatpayV3PartnerRoyaltyResponse
- */
-export interface V1WechatpayV3PartnerRoyaltyResponse {
 }
 
 
@@ -8314,6 +8333,7 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
          * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -8328,7 +8348,7 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options: any = {}): FetchArgs {
+        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options: any = {}): FetchArgs {
             const localVarPath = `/v1/settlement_accounts`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
@@ -8377,6 +8397,10 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
 
             if (recipientWechatpayChannelRecipientAccountType !== undefined) {
                 localVarQueryParameter['recipient.wechatpay_channel_recipient.account_type'] = recipientWechatpayChannelRecipientAccountType;
+            }
+
+            if (recipientWechatpayChannelRecipientAppId !== undefined) {
+                localVarQueryParameter['recipient.wechatpay_channel_recipient.app_id'] = recipientWechatpayChannelRecipientAppId;
             }
 
             if (recipientAlipayChannelRecipientAccount !== undefined) {
@@ -8576,6 +8600,7 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
          * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
@@ -8593,7 +8618,7 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options: any = {}): FetchArgs {
+        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options: any = {}): FetchArgs {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
                 throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceRetrieveSettlementAccount.');
@@ -8655,6 +8680,10 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
 
             if (dataRecipientWechatpayChannelRecipientAccountType !== undefined) {
                 localVarQueryParameter['data.recipient.wechatpay_channel_recipient.account_type'] = dataRecipientWechatpayChannelRecipientAccountType;
+            }
+
+            if (dataRecipientWechatpayChannelRecipientAppId !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.app_id'] = dataRecipientWechatpayChannelRecipientAppId;
             }
 
             if (dataRecipientAlipayChannelRecipientAccount !== undefined) {
@@ -8776,6 +8805,7 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
          * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -8790,7 +8820,7 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options: any = {}): FetchArgs {
+        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options: any = {}): FetchArgs {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
                 throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceUpdateSettlementAccount.');
@@ -8840,6 +8870,10 @@ export const SettlementServiceApiFetchParamCreator = function (configuration?: C
 
             if (recipientWechatpayChannelRecipientAccountType !== undefined) {
                 localVarQueryParameter['recipient.wechatpay_channel_recipient.account_type'] = recipientWechatpayChannelRecipientAccountType;
+            }
+
+            if (recipientWechatpayChannelRecipientAppId !== undefined) {
+                localVarQueryParameter['recipient.wechatpay_channel_recipient.app_id'] = recipientWechatpayChannelRecipientAppId;
             }
 
             if (recipientAlipayChannelRecipientAccount !== undefined) {
@@ -8917,6 +8951,7 @@ export const SettlementServiceApiFp = function(configuration?: Configuration) {
          * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -8931,8 +8966,8 @@ export const SettlementServiceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options);
+        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -9010,6 +9045,7 @@ export const SettlementServiceApiFp = function(configuration?: Configuration) {
          * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9027,8 +9063,8 @@ export const SettlementServiceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options);
+        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientWechatpayChannelRecipientAppId, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -9073,6 +9109,7 @@ export const SettlementServiceApiFp = function(configuration?: Configuration) {
          * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9087,8 +9124,8 @@ export const SettlementServiceApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options);
+        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -9121,6 +9158,7 @@ export const SettlementServiceApiFactory = function (configuration?: Configurati
          * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9135,8 +9173,8 @@ export const SettlementServiceApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(fetch, basePath);
+        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
+            return SettlementServiceApiFp(configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(fetch, basePath);
         },
         /**
          * 
@@ -9184,6 +9222,7 @@ export const SettlementServiceApiFactory = function (configuration?: Configurati
          * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9201,8 +9240,8 @@ export const SettlementServiceApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options)(fetch, basePath);
+        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
+            return SettlementServiceApiFp(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientWechatpayChannelRecipientAppId, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options)(fetch, basePath);
         },
         /**
          * 
@@ -9227,6 +9266,7 @@ export const SettlementServiceApiFactory = function (configuration?: Configurati
          * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
          * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
          * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
          * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
          * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9241,8 +9281,8 @@ export const SettlementServiceApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(fetch, basePath);
+        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
+            return SettlementServiceApiFp(configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(fetch, basePath);
         },
     };
 };
@@ -9266,6 +9306,7 @@ export class SettlementServiceApi extends BaseAPI {
      * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
      * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
      * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+     * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
      * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
      * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
      * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9281,8 +9322,8 @@ export class SettlementServiceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SettlementServiceApi
      */
-    public settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(this.fetch, this.basePath);
+    public settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
+        return SettlementServiceApiFp(this.configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -9335,6 +9376,7 @@ export class SettlementServiceApi extends BaseAPI {
      * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
      * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
      * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+     * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
      * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
      * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
      * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9353,8 +9395,8 @@ export class SettlementServiceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SettlementServiceApi
      */
-    public settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options)(this.fetch, this.basePath);
+    public settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
+        return SettlementServiceApiFp(this.configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientWechatpayChannelRecipientAppId, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -9382,6 +9424,7 @@ export class SettlementServiceApi extends BaseAPI {
      * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
      * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
      * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+     * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
      * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
      * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
      * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
@@ -9397,8 +9440,8 @@ export class SettlementServiceApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SettlementServiceApi
      */
-    public settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(this.fetch, this.basePath);
+    public settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
+        return SettlementServiceApiFp(this.configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(this.fetch, this.basePath);
     }
 
 }
