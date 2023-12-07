@@ -2,7 +2,7 @@
 // tslint:disable
 /**
  * Justap API
- * 欢迎阅读 Justap Api 文档  Justap 是为移动端应用和PC端应用打造的下一代聚合支付SAAS服务平台，通过一个 SDK 即可快速的支持各种形式的应用，并且一次接口完成多个不同支付渠道的接入。平台除了支持服务商子商户模式，同时还对商家自有商户（即自己前往微信、支付宝等机构开户）提供了完整的支持。  感谢您的支持，我们将不断探索，为您提供更优质的服务！如需技术支持可前往商户中心提交工单，支持工程师会尽快与您取得联系！  # 文档说明 采用 REST 风格设计。所有接口请求地址都是可预期的以及面向资源的。使用规范的 HTTP 响应代码来表示请求结果的正确或错误信息。使用 HTTP 内置的特性，如 HTTP Authentication 和 HTTP 请求方法让接口易于理解。  ## HTTP 状态码 HTTP 状态码可以用于表明服务的状态。服务器返回的 HTTP 状态码遵循 [RFC 7231](http://tools.ietf.org/html/rfc7231#section-6) 和 [IANA Status Code Registry](http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) 标准。  ## 认证 在调用 API 时，必须提供 API Key 作为每个请求的身份验证。你可以在管理平台内管理你的 API Key。API Key 是商户在系统中的身份标识，请安全存储，确保其不要被泄露。如需获取或更新 API Key ，也可以在商户中心内进行操作。 Api Key 在使用自定义的 HTTP Header 进行传递。  ``` X-Justap-Api-Key ```  API Key 分为 live 和 test 两种模式。分别对应真实交易环境和模拟测试交易环境并且可以实时切换。 测试模式下的 API Key 会模拟交易等请求，但是不会产生任何真实交易行为和费用，便于调试和接入。  **⚠️ 注意**：在使用 live 模式前，需要先前往 `商户中心 -> 应用设置 -> 开发参数` 开启 live 模式。  <SecurityDefinitions />  ## 请求类型 所有的 API 请求只支持 HTTPS 方式调用。  ## 路由参数 路由参数是指出现在 URL 路径中的可变变量。在本文档中，使用 `{}` 包裹的部分。 例如： `{charge_id}`，在实际使用是，需要将 `{charge_id}` 替换为实际值 `charge_8a8sdf888888`  ## MIME Type MIME 类型用于指示服务器返回的数据格式。服务器目前默认采用 `application/json`。  例如: ``` application/json ```  ## 错误 服务器使用 HTTP 状态码 (status code) 来表明一个 API 请求的成功或失败状态。返回 HTTP 2XX 表明 API 请求成功。返回 HTTP 4XX 表明在请求 API 时提供了错误信息，例如参数缺失、参数错误、支付渠道错误等。返回 HTTP 5XX 表明 API 请求时，服务器发生了错误。 在返回错误的状态码时，回同时返回一些错误信息提示出错原因。  具体的错误码我们正在整理当中。  ## 分页 所有的 Justap 资源都可以被 list API 方法支持，例如分页 charges 和 refunds。这些 list API 方法拥有相同的数据结构。Justap 是基于 cursor 的分页机制，使用参数 starting_after 来决定列表从何处开始，使用参数 ending_before 来决定列表从何处结束。  ## 参数说明 请求参数中包含的以下字段释义请参考：  - REQUIRED: 必填参数 - OPTIONAL: 可选参数，可以在请求当前接口时按需传入 - CONDITIONAL: 在某些条件下必传 - RESPONSE-ONLY: 标示该参数仅在接口返回参数中出现，调用 API 时无需传入  # 如何保证幂等性 如果发生请求超时或服务器内部错误，客户端可能会尝试重发请求。您可以在请求中设置 ClientToken 参数避免多次重试带来重复操作的问题。  ## 什么是幂等性 在数学计算或者计算机科学中，幂等性（idempotence）是指相同操作或资源在一次或多次请求中具有同样效果的作用。幂等性是在分布式系统设计中具有十分重要的地位。  ## 保证幂等性 通常情况下，客户端只需要在500（InternalErrorInternalError）或503（ServiceUnavailable）错误，或者无法获取响应结果时重试。充实时您可以从客户端生成一个参数值不超过64个的ASCII字符，并将值赋予 ClientToken，保证重试请求的幂等性。  ## ClientToken 详解 ClientToken参数的详细信息如下所示。  - ClientToken 是一个由客户端生成的唯一的、大小写敏感、不超过64个ASCII字符的字符串。例如，`ClientToken=123e4567-e89b-12d3-a456-426655440000`。 - 如果您提供了一个已经使用过的 ClientToken，但其他请求参数**有变化**，则服务器会返回 IdempotentParameterMismatch 的错误代码。 - 如果您提供了一个已经使用过的 ClientToken，且其他请求参数**不变**，则服务器会尝试返回 ClientToken 对应的记录。  ## API列表 以下为部分包含了 ClientToken 参数的API，供您参考。具体哪些API支持 ClientToken 参数请以各 API 文档为准，此处不一一列举。  - [申请退款接口](https://www.justap.cn/docs#operation/TradeService_Refunds)  # 签名 为保证安全，JUSTAP 所有接口均需要对请求进行签名。服务器收到请求后进行签名的验证。如果签名验证不通过，将会拒绝处理请求，并返回 401 Unauthorized。  签名算法：  ``` base64Encode(hamc-sha256(md5(请求 body + 请求时间戳 + 一次性随机字符串) + 一次性随机字符串)) ```  ## 准备 首先需要在 Justap 创建一个应用，商户需要生成一对 RSA 密钥对，并将公钥配置到 `商户中心 -> 开发配置`。 RSA 可以使用支付宝提供的 [密钥生成工具](https://opendocs.alipay.com/common/02kipl) 来生成。  商户在使用时，可以按照下述步骤生成请求的签名。   ## 算法描述: - 在请求发送前，取完整的**请求 body** - 生成一个随机的32位字符串，得到 **一次性随机字符串** - 获取当前时间的时间戳，得到 **请求时间戳** - 在请求字符串后面拼接上 **请求时间戳** 和 **一次性随机字符串**，得到 **待 Hash 字符串** - 对 **待 Hash 字符串** 计算 md5，得到 **待签名字符串** - **待签名字符串** 后面拼接上 一次性随机字符串，得到完整的 **待签名字符串** - 使用商户 RSA 私钥，对 **待签名字符串** 计算签名，并对 结果 进行 base64 编码，即可得到 **签名**  ## 设置HTTP头 Justap 要求请求通过 自定义头部 来传递签名。具体定义如下:  ``` X-Justap-Signature: 签名 X-Justap-Request-Time: 请求时间戳 X-Justap-Nonce: 一次性随机字符串 X-Justap-Body-Hash: 待签名字符串 ```  具体的签名算法实现，可参考我们提供的各语言 SDK。  # WebHooks 
+ * 欢迎阅读 Justap Api 文档  Justap 是为移动端应用和PC端应用打造的下一代聚合支付SAAS服务平台，通过一个 SDK 即可快速的支持各种形式的应用，并且一次接口完成多个不同支付渠道的接入。平台除了支持服务商子商户模式，同时还对商家自有商户（即自己前往微信、支付宝等机构开户）提供了完整的支持。  感谢您的支持，我们将不断探索，为您提供更优质的服务！如需技术支持可前往商户中心提交工单，支持工程师会尽快与您取得联系！  # 文档说明 采用 REST 风格设计。所有接口请求地址都是可预期的以及面向资源的。使用规范的 HTTP 响应代码来表示请求结果的正确或错误信息。使用 HTTP 内置的特性，如 HTTP Authentication 和 HTTP 请求方法让接口易于理解。  ## HTTP 状态码 HTTP 状态码可以用于表明服务的状态。服务器返回的 HTTP 状态码遵循 [RFC 7231](http://tools.ietf.org/html/rfc7231#section-6) 和 [IANA Status Code Registry](http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) 标准。  ## 认证 在调用 API 时，必须提供 API Key 作为每个请求的身份验证。你可以在管理平台内管理你的 API Key。API Key 是商户在系统中的身份标识，请安全存储，确保其不要被泄露。如需获取或更新 API Key ，也可以在商户中心内进行操作。 Api Key 在使用自定义的 HTTP Header 进行传递。  ``` X-Justap-Api-Key ```  API Key 分为 live 和 test 两种模式。分别对应真实交易环境和模拟测试交易环境并且可以实时切换。 测试模式下的 API Key 会模拟交易等请求，但是不会产生任何真实交易行为和费用，便于调试和接入。  **⚠️ 注意**：在使用 live 模式前，需要先前往 `商户中心 -> 应用设置 -> 开发参数` 开启 live 模式。  <SecurityDefinitions />  ## 请求类型 所有的 API 请求只支持 HTTPS 方式调用。  ## 路由参数 路由参数是指出现在 URL 路径中的可变变量。在本文档中，使用 `{}` 包裹的部分。 例如： `{charge_id}`，在实际使用是，需要将 `{charge_id}` 替换为实际值 `charge_8a8sdf888888`  ## MIME Type MIME 类型用于指示服务器返回的数据格式。服务器目前默认采用 `application/json`。  例如: ``` application/json ```  ## 错误 服务器使用 HTTP 状态码 (status code) 来表明一个 API 请求的成功或失败状态。返回 HTTP 2XX 表明 API 请求成功。返回 HTTP 4XX 表明在请求 API 时提供了错误信息，例如参数缺失、参数错误、支付渠道错误等。返回 HTTP 5XX 表明 API 请求时，服务器发生了错误。 在返回错误的状态码时，回同时返回一些错误信息提示出错原因。  具体的错误码我们正在整理当中。  ## 分页 所有的 Justap 资源都可以被 list API 方法支持，例如分页 charges 和 refunds。这些 list API 方法拥有相同的数据结构。Justap 是基于 cursor 的分页机制，使用参数 starting_after 来决定列表从何处开始，使用参数 ending_before 来决定列表从何处结束。  ## 参数说明 请求参数中包含的以下字段释义请参考：  - REQUIRED: 必填参数 - OPTIONAL: 可选参数，可以在请求当前接口时按需传入 - CONDITIONAL: 在某些条件下必传 - RESPONSE-ONLY: 标示该参数仅在接口返回参数中出现，调用 API 时无需传入  # 如何保证幂等性 如果发生请求超时或服务器内部错误，客户端可能会尝试重发请求。您可以在请求中设置 ClientToken 参数避免多次重试带来重复操作的问题。  ## 什么是幂等性 在数学计算或者计算机科学中，幂等性（idempotence）是指相同操作或资源在一次或多次请求中具有同样效果的作用。幂等性是在分布式系统设计中具有十分重要的地位。  ## 保证幂等性 通常情况下，客户端只需要在500（InternalErrorInternalError）或503（ServiceUnavailable）错误，或者无法获取响应结果时重试。充实时您可以从客户端生成一个参数值不超过64个的ASCII字符，并将值赋予 ClientToken，保证重试请求的幂等性。  ## ClientToken 详解 ClientToken参数的详细信息如下所示。  - ClientToken 是一个由客户端生成的唯一的、大小写敏感、不超过64个ASCII字符的字符串。例如，`ClientToken=123e4567-e89b-12d3-a456-426655440000`。 - 如果您提供了一个已经使用过的 ClientToken，但其他请求参数**有变化**，则服务器会返回 IdempotentParameterMismatch 的错误代码。 - 如果您提供了一个已经使用过的 ClientToken，且其他请求参数**不变**，则服务器会尝试返回 ClientToken 对应的记录。  ## API列表 以下为部分包含了 ClientToken 参数的API，供您参考。具体哪些API支持 ClientToken 参数请以各 API 文档为准，此处不一一列举。  - [申请退款接口](https://www.justap.cn/docs#operation/TradeService_Refunds)  # 签名 为保证安全，JUSTAP 所有接口均需要对请求进行签名。服务器收到请求后进行签名的验证。如果签名验证不通过，将会拒绝处理请求，并返回 401 Unauthorized。  签名算法：  ``` base64Encode(hamc-sha256(md5(请求 body + 请求时间戳 + 一次性随机字符串) + 一次性随机字符串)) ```  ## 准备 首先需要在 Justap 创建一个应用，商户需要生成一对 RSA 密钥对，并将公钥配置到 `商户中心 -> 开发配置`。 RSA 可以使用支付宝提供的 [密钥生成工具](https://opendocs.alipay.com/common/02kipl) 来生成。  商户在使用时，可以按照下述步骤生成请求的签名。   ## 算法描述: - 在请求发送前，取完整的**请求 body** - 生成一个随机的32位字符串，得到 **一次性随机字符串** - 获取当前时间的时间戳，得到 **请求时间戳** - 在请求字符串后面拼接上 **请求时间戳** 和 **一次性随机字符串**，得到 **待 Hash 字符串** - 对 **待 Hash 字符串** 转换为 utf8 编码并计算 md5，得到 **待签名字符串** - **待签名字符串** 后面拼接上 一次性随机字符串，得到完整的 **待签名字符串** - 使用商户 RSA 私钥，对 **待签名字符串** 计算签名，并对 结果 进行 base64 编码，即可得到 **签名**  ## 设置HTTP头 Justap 要求请求通过 自定义头部 来传递签名。具体定义如下:  ``` X-Justap-Signature: 签名 X-Justap-Request-Time: 请求时间戳 X-Justap-Nonce: 一次性随机字符串 X-Justap-Body-Hash: 待签名字符串 ```  具体的签名算法实现，可参考我们提供的各语言 SDK。  # WebHooks 
  *
  * OpenAPI spec version: 1.0
  * Contact: support@justap.net
@@ -84,10 +84,22 @@ export class RequiredError extends Error {
  * @export
  * @enum {string}
  */
-export enum CreateRoyaltyRequestRoyaltyFeeMode {
-    Free = <any> 'free',
-    Fixed = <any> 'fixed',
-    Rate = <any> 'rate'
+export enum ChargeRoutingRequestChargeMethod {
+    CHARGEMETHODUNKNOWN = <any> 'CHARGE_METHOD_UNKNOWN',
+    CREATECHARGE = <any> 'CREATE_CHARGE',
+    QUERYCHARGE = <any> 'QUERY_CHARGE',
+    CLOSECHARGE = <any> 'CLOSE_CHARGE'
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum CreateRoyaltyRequestRoyaltyMode {
+    ROYALTYMODEUNSET = <any> 'ROYALTY_MODE_UNSET',
+    FIXED = <any> 'FIXED',
+    RATE = <any> 'RATE'
 }
 
 /**
@@ -101,43 +113,43 @@ export interface CreateRoyaltyRequestRoyaltyReceiver {
      * @type {number}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    amount?: number;
+    amount: number;
     /**
      * [OPTIONAL] 手续费，单位：元。 如果传递，则每笔分账都会在应分帐金额基础上扣除手续费后再请求支付平台进行分账
      * @type {number}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    fee?: number;
+    fee: number;
     /**
      * [OPTIONAL] 手续费模式，fixed 表示固定金额，rate 表示按比例计算手续费。此参数传手续费比例，0.1 表示 10%
-     * @type {CreateRoyaltyRequestRoyaltyFeeMode}
+     * @type {RoyaltyReceiverRoyaltyFeeMode}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    feeModel?: CreateRoyaltyRequestRoyaltyFeeMode;
+    feeModel: RoyaltyReceiverRoyaltyFeeMode;
     /**
      * [OPTIONAL] 手续费比例，与 手续费 字段二选一即可ratio
      * @type {number}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    feeRatio?: number;
+    feeRatio: number;
     /**
      * [OPTIONAL] 根据 royalty_mode 参数，如果 royalty_mode = fixed, 此参数无效，如果 royalty_mode = rate，此参数传分润比例，0.1 表示 10%
      * @type {number}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    ratio?: number;
+    ratio: number;
     /**
      * 接受方的商业用户ID
      * @type {string}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    recipientBusinessUserId?: string;
+    recipientBusinessUserId: string;
     /**
      * [REQUIRED] 分润模式，free 表示不收取，fixed 表示固定金额，rate 表示按比例分润
-     * @type {V1RoyaltyMode}
+     * @type {CreateRoyaltyRequestRoyaltyMode}
      * @memberof CreateRoyaltyRequestRoyaltyReceiver
      */
-    royaltyMode?: V1RoyaltyMode;
+    royaltyMode: CreateRoyaltyRequestRoyaltyMode;
 }
 
 /**
@@ -329,29 +341,29 @@ export interface OpenApiRoyaltyDetailInfoPojoTradeFundBillItem {
      * @type {number}
      * @memberof OpenApiRoyaltyDetailInfoPojoTradeFundBillItem
      */
-    amount?: number;
+    amount: number;
     /**
      * 资金渠道
      * @type {string}
      * @memberof OpenApiRoyaltyDetailInfoPojoTradeFundBillItem
      */
-    fundChannel?: string;
+    fundChannel: string;
     /**
      * 渠道所使用的资金类型
      * @type {string}
      * @memberof OpenApiRoyaltyDetailInfoPojoTradeFundBillItem
      */
-    fundType?: string;
+    fundType: string;
     /**
      * 渠道实际付款金额
      * @type {number}
      * @memberof OpenApiRoyaltyDetailInfoPojoTradeFundBillItem
      */
-    realAmount?: number;
+    realAmount: number;
 }
 
 /**
- * `Any` contains an arbitrary serialized protocol buffer message along with a URL that describes the type of the serialized message.  Protobuf library provides support to pack/unpack Any values in the form of utility functions or additional generated methods of the Any type.  Example 1: Pack and unpack a message in C++.      Foo foo = ...;     Any any;     any.PackFrom(foo);     ...     if (any.UnpackTo(&foo)) {       ...     }  Example 2: Pack and unpack a message in Java.      Foo foo = ...;     Any any = Any.pack(foo);     ...     if (any.is(Foo.class)) {       foo = any.unpack(Foo.class);     }  Example 3: Pack and unpack a message in Python.      foo = Foo(...)     any = Any()     any.Pack(foo)     ...     if any.Is(Foo.DESCRIPTOR):       any.Unpack(foo)       ...  Example 4: Pack and unpack a message in Go       foo := &pb.Foo{...}      any, err := anypb.New(foo)      if err != nil {        ...      }      ...      foo := &pb.Foo{}      if err := any.UnmarshalTo(foo); err != nil {        ...      }  The pack methods provided by protobuf library will by default use 'type.googleapis.com/full.type.name' as the type URL and the unpack methods only use the fully qualified type name after the last '/' in the type URL, for example \"foo.bar.com/x/y.z\" will yield type name \"y.z\".   JSON  The JSON representation of an `Any` value uses the regular representation of the deserialized, embedded message, with an additional field `@type` which contains the type URL. Example:      package google.profile;     message Person {       string first_name = 1;       string last_name = 2;     }      {       \"@type\": \"type.googleapis.com/google.profile.Person\",       \"firstName\": <string>,       \"lastName\": <string>     }  If the embedded message type is well-known and has a custom JSON representation, that representation will be embedded adding a field `value` which holds the custom JSON in addition to the `@type` field. Example (for message [google.protobuf.Duration][]):      {       \"@type\": \"type.googleapis.com/google.protobuf.Duration\",       \"value\": \"1.212s\"     }
+ * `Any` contains an arbitrary serialized protocol buffer message along with a URL that describes the type of the serialized message.  Protobuf library provides support to pack/unpack Any values in the form of utility functions or additional generated methods of the Any type.  Example 1: Pack and unpack a message in C++.      Foo foo = ...;     Any any;     any.PackFrom(foo);     ...     if (any.UnpackTo(&foo)) {       ...     }  Example 2: Pack and unpack a message in Java.      Foo foo = ...;     Any any = Any.pack(foo);     ...     if (any.is(Foo.class)) {       foo = any.unpack(Foo.class);     }     // or ...     if (any.isSameTypeAs(Foo.getDefaultInstance())) {       foo = any.unpack(Foo.getDefaultInstance());     }  Example 3: Pack and unpack a message in Python.      foo = Foo(...)     any = Any()     any.Pack(foo)     ...     if any.Is(Foo.DESCRIPTOR):       any.Unpack(foo)       ...  Example 4: Pack and unpack a message in Go       foo := &pb.Foo{...}      any, err := anypb.New(foo)      if err != nil {        ...      }      ...      foo := &pb.Foo{}      if err := any.UnmarshalTo(foo); err != nil {        ...      }  The pack methods provided by protobuf library will by default use 'type.googleapis.com/full.type.name' as the type URL and the unpack methods only use the fully qualified type name after the last '/' in the type URL, for example \"foo.bar.com/x/y.z\" will yield type name \"y.z\".  JSON  The JSON representation of an `Any` value uses the regular representation of the deserialized, embedded message, with an additional field `@type` which contains the type URL. Example:      package google.profile;     message Person {       string first_name = 1;       string last_name = 2;     }      {       \"@type\": \"type.googleapis.com/google.profile.Person\",       \"firstName\": <string>,       \"lastName\": <string>     }  If the embedded message type is well-known and has a custom JSON representation, that representation will be embedded adding a field `value` which holds the custom JSON in addition to the `@type` field. Example (for message [google.protobuf.Duration][]):      {       \"@type\": \"type.googleapis.com/google.protobuf.Duration\",       \"value\": \"1.212s\"     }
  * @export
  * @interface ProtobufAny
  */
@@ -377,31 +389,31 @@ export interface RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo {
      * @type {number}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    amount?: number;
+    amount: number;
     /**
      * 买家支付宝账号
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    buyerLogonId?: string;
+    buyerLogonId: string;
     /**
      * 买家在支付宝的用户id
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    buyerUserId?: string;
+    buyerUserId: string;
     /**
      * 分账描述
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    desc?: string;
+    desc: string;
     /**
      * 分账变更消息
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    fundChange?: string;
+    fundChange: string;
     /**
      * 退款使用的资金渠道
      * @type {Array<OpenApiRoyaltyDetailInfoPojoTradeFundBillItem>}
@@ -413,61 +425,61 @@ export interface RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo {
      * @type {number}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    refundFee?: number;
+    refundFee: number;
     /**
      * 可选值：达人佣金、平台服务费、技术服务费、其他
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    royaltyScene?: string;
+    royaltyScene: string;
     /**
      * 分账类型
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    royaltyType?: string;
+    royaltyType: string;
     /**
      * 买家实际退款金额
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    sendBackFee?: string;
+    sendBackFee: string;
     /**
      * 交易场景
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    storeName?: string;
+    storeName: string;
     /**
      * 收入方账户
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    transIn?: string;
+    transIn: string;
     /**
      * 分账收款方姓名
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    transInName?: string;
+    transInName: string;
     /**
      * 收入方账户类型
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    transInType?: string;
+    transInType: string;
     /**
      * 支出方账户
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    transOut?: string;
+    transOut: string;
     /**
      * 支出方账户类型
      * @type {string}
      * @memberof RefundExtraAlipayOpenApiRoyaltyDetailInfoPojo
      */
-    transOutType?: string;
+    transOutType: string;
 }
 
 /**
@@ -495,37 +507,71 @@ export interface RefundExtraWechatPayGoodsDetailItem {
      * @type {string}
      * @memberof RefundExtraWechatPayGoodsDetailItem
      */
-    goodsName?: string;
+    goodsName: string;
     /**
      * 商户侧商品编码, 由半角的大小写字母、数字、中划线、下划线中的一种或几种组成
      * @type {string}
      * @memberof RefundExtraWechatPayGoodsDetailItem
      */
-    merchantGoodsId?: string;
+    merchantGoodsId: string;
     /**
      * 商品退款金额，单位为分
      * @type {number}
      * @memberof RefundExtraWechatPayGoodsDetailItem
      */
-    refundAmount?: number;
+    refundAmount: number;
     /**
      *  单品的退款数量
      * @type {number}
      * @memberof RefundExtraWechatPayGoodsDetailItem
      */
-    refundQuantity?: number;
+    refundQuantity: number;
     /**
      * 商品单价金额，单位为分
      * @type {number}
      * @memberof RefundExtraWechatPayGoodsDetailItem
      */
-    unitPrice?: number;
+    unitPrice: number;
     /**
      * 微信支付商品编码, 微信支付定义的统一商品编号（没有可不传）
      * @type {string}
      * @memberof RefundExtraWechatPayGoodsDetailItem
      */
-    wechatpayGoodsId?: string;
+    wechatpayGoodsId: string;
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum RefundRoutingRequestRefundMethod {
+    REFUNDMETHODUNKNOWN = <any> 'REFUND_METHOD_UNKNOWN',
+    CREATEREFUND = <any> 'CREATE_REFUND',
+    QUERYREFUND = <any> 'QUERY_REFUND'
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum RoyaltyReceiverRoyaltyFeeMode {
+    FREE = <any> 'FREE',
+    FIXED = <any> 'FIXED',
+    RATE = <any> 'RATE'
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum RoyaltySettlementRoyaltySettlementStatus {
+    RoyaltySettlementStatusUnset = <any> 'RoyaltySettlementStatusUnset',
+    CREATED = <any> 'CREATED',
+    PENDING = <any> 'PENDING',
+    COMPLETED = <any> 'COMPLETED'
 }
 
 /**
@@ -555,7 +601,7 @@ export interface RpcStatus {
 }
 
 /**
- * - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
+ * 
  * @export
  * @enum {string}
  */
@@ -579,25 +625,33 @@ export interface SettlementAccountRecipientAlipayChannelRecipient {
      * @type {string}
      * @memberof SettlementAccountRecipientAlipayChannelRecipient
      */
-    account?: string;
+    account: string;
     /**
      * 支付宝账号类型
      * @type {SettlementAccountRecipientAccountType}
      * @memberof SettlementAccountRecipientAlipayChannelRecipient
      */
-    accountType?: SettlementAccountRecipientAccountType;
+    accountType: SettlementAccountRecipientAccountType;
     /**
      * 支付宝账号真实姓名
      * @type {string}
      * @memberof SettlementAccountRecipientAlipayChannelRecipient
      */
-    name?: string;
+    name: string;
     /**
      * 支付宝账号类型
      * @type {SettlementAccountRecipientRecipientType}
      * @memberof SettlementAccountRecipientAlipayChannelRecipient
      */
-    type?: SettlementAccountRecipientRecipientType;
+    type: SettlementAccountRecipientRecipientType;
+}
+
+/**
+ * 
+ * @export
+ * @interface SettlementAccountRecipientBalanceChannelRecipient
+ */
+export interface SettlementAccountRecipientBalanceChannelRecipient {
 }
 
 /**
@@ -611,43 +665,43 @@ export interface SettlementAccountRecipientBankChannelRecipient {
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    account?: string;
+    account: string;
     /**
      * 银行卡开户支行
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    bankBranch?: string;
+    bankBranch: string;
     /**
      * 银行卡开户城市
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    bankCity?: string;
+    bankCity: string;
     /**
      * 银行卡开户行编码
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    bankName?: string;
+    bankName: string;
     /**
      * 银行卡开户省份
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    bankProvince?: string;
+    bankProvince: string;
     /**
      * 银行卡开户名
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    name?: string;
+    name: string;
     /**
      * 银行卡类型
      * @type {string}
      * @memberof SettlementAccountRecipientBankChannelRecipient
      */
-    type?: string;
+    type: string;
 }
 
 /**
@@ -672,41 +726,61 @@ export interface SettlementAccountRecipientWechatpayChannelRecipient {
      * @type {string}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
      */
-    account?: string;
+    account: string;
     /**
      * 微信支付分账接收方账户类型
      * @type {SettlementAccountRecipientAccountType}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
      */
-    accountType?: SettlementAccountRecipientAccountType;
+    accountType: SettlementAccountRecipientAccountType;
     /**
-     * 微信支付分账接收方 openid 所对应的公众号 ID
+     * 微信支付分账接收方 openid 所对应的服务商公众号 ID
      * @type {string}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
      */
-    appId?: string;
+    appId: string;
     /**
      * 是否强制校验收款人姓名
      * @type {boolean}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
      */
-    forceCheck?: boolean;
+    forceCheck: boolean;
     /**
      * 微信支付分账接收方姓名或名称
      * @type {string}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
      */
-    name?: string;
+    name: string;
+    /**
+     * 微信支付分账接收方 openid 所对应的商户公众号 ID
+     * @type {string}
+     * @memberof SettlementAccountRecipientWechatpayChannelRecipient
+     */
+    subAppId: string;
     /**
      * 微信支付分账接收方类型
      * @type {SettlementAccountRecipientRecipientType}
      * @memberof SettlementAccountRecipientWechatpayChannelRecipient
      */
-    type?: SettlementAccountRecipientRecipientType;
+    type: SettlementAccountRecipientRecipientType;
 }
 
 /**
- * - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+ * 
+ * @export
+ * @interface SettlementAccountRecipientYsepayMerchantRecipient
+ */
+export interface SettlementAccountRecipientYsepayMerchantRecipient {
+    /**
+     * 银盛商户号
+     * @type {string}
+     * @memberof SettlementAccountRecipientYsepayMerchantRecipient
+     */
+    divisionMerUsercode: string;
+}
+
+/**
+ * - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
  * @export
  * @enum {string}
  */
@@ -720,17 +794,19 @@ export enum Tradev1Channel {
     AlipayPage = <any> 'AlipayPage',
     AlipayFace = <any> 'AlipayFace',
     AlipayLite = <any> 'AlipayLite',
+    AlipayJSAPI = <any> 'AlipayJSAPI',
     WechatpayApp = <any> 'WechatpayApp',
     WechatpayJSAPI = <any> 'WechatpayJSAPI',
     WechatpayH5 = <any> 'WechatpayH5',
     WechatpayNative = <any> 'WechatpayNative',
     WechatpayLite = <any> 'WechatpayLite',
     WechatpayFace = <any> 'WechatpayFace',
-    WechatpayScan = <any> 'WechatpayScan'
+    WechatpayScan = <any> 'WechatpayScan',
+    UnionPayQr = <any> 'UnionPayQr'
 }
 
 /**
- * - Alipay: 支付宝  - Wechatpay: 对应 MERCHANT_ID
+ * 
  * @export
  * @enum {string}
  */
@@ -738,7 +814,24 @@ export enum Tradev1RoyaltyMethod {
     RoyaltyMethodUnset = <any> 'RoyaltyMethodUnset',
     Balance = <any> 'Balance',
     Alipay = <any> 'Alipay',
-    Wechatpay = <any> 'Wechatpay'
+    Wechatpay = <any> 'Wechatpay',
+    YsepayMerchant = <any> 'YsepayMerchant'
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerCloseTransactionResponse
+ */
+export interface V1AcquirerCloseTransactionResponse {
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerCreateRefundResponse
+ */
+export interface V1AcquirerCreateRefundResponse {
 }
 
 /**
@@ -747,6 +840,60 @@ export enum Tradev1RoyaltyMethod {
  * @interface V1AcquirerCreateRoyaltyResponse
  */
 export interface V1AcquirerCreateRoyaltyResponse {
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerCreateRoyaltyResponse
+     */
+    error?: V1ServiceError;
+    /**
+     * 分账单号
+     * @type {number}
+     * @memberof V1AcquirerCreateRoyaltyResponse
+     */
+    royaltyId: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerCreateTransactionResponse
+ */
+export interface V1AcquirerCreateTransactionResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1AcquirerCreateTransactionResponse
+     */
+    chargeId: number;
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerCreateTransactionResponse
+     */
+    error?: V1ServiceError;
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1AcquirerCreateTransactionResponse
+     */
+    transactionId: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerPaymentNotifyResponse
+ */
+export interface V1AcquirerPaymentNotifyResponse {
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerQueryRefundResponse
+ */
+export interface V1AcquirerQueryRefundResponse {
 }
 
 /**
@@ -755,6 +902,40 @@ export interface V1AcquirerCreateRoyaltyResponse {
  * @interface V1AcquirerQueryRoyaltyResponse
  */
 export interface V1AcquirerQueryRoyaltyResponse {
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerQueryRoyaltyResponse
+     */
+    error?: V1ServiceError;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerQueryTransactionResponse
+ */
+export interface V1AcquirerQueryTransactionResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1AcquirerQueryTransactionResponse
+     */
+    chargeId: number;
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerQueryTransactionResponse
+     */
+    error?: V1ServiceError;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1AcquirerRefundNotifyResponse
+ */
+export interface V1AcquirerRefundNotifyResponse {
 }
 
 /**
@@ -796,6 +977,98 @@ export interface V1AlipayNotifyResponse {
 /**
  * 
  * @export
+ * @interface V1BusinessUser
+ */
+export interface V1BusinessUser {
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    address?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    appId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    avatar?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    currency?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    description?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof V1BusinessUser
+     */
+    disabled?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    email?: string;
+    /**
+     * 
+     * @type {V1Gender}
+     * @memberof V1BusinessUser
+     */
+    gender?: V1Gender;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    id?: string;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof V1BusinessUser
+     */
+    metadata?: { [key: string]: string; };
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    nickname?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    parentUserId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1BusinessUser
+     */
+    phone?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface V1CallbackRoutingResponse
  */
 export interface V1CallbackRoutingResponse {
@@ -812,67 +1085,67 @@ export interface V1Charge {
      * @type {number}
      * @memberof V1Charge
      */
-    amount?: number;
+    amount: number;
     /**
      * 下单金额
      * @type {number}
      * @memberof V1Charge
      */
-    amountFee?: number;
+    amountFee: number;
     /**
      * 订单退款总金额
      * @type {number}
      * @memberof V1Charge
      */
-    amountRefund?: number;
+    amountRefund: number;
     /**
      * 分账金额
      * @type {number}
      * @memberof V1Charge
      */
-    amountRoyalty?: number;
+    amountRoyalty: number;
     /**
      * 结算金额，不一定有，视支付通道情况返回
      * @type {number}
      * @memberof V1Charge
      */
-    amountSettle?: number;
+    amountSettle: number;
     /**
      * 应用ID
      * @type {string}
      * @memberof V1Charge
      */
-    appId?: string;
+    appId: string;
     /**
      * 订单描述信息
      * @type {string}
      * @memberof V1Charge
      */
-    body?: string;
+    body: string;
     /**
      * 支付渠道
      * @type {Tradev1Channel}
      * @memberof V1Charge
      */
-    channel?: Tradev1Channel;
+    channel: Tradev1Channel;
     /**
      * Charge 对象 id
      * @type {string}
      * @memberof V1Charge
      */
-    chargeId?: string;
+    chargeId: string;
     /**
      * 顾客IP
      * @type {string}
      * @memberof V1Charge
      */
-    clientIp?: string;
+    clientIp: string;
     /**
      * 是否关闭
      * @type {boolean}
      * @memberof V1Charge
      */
-    closed?: boolean;
+    closed: boolean;
     /**
      * 关闭时间
      * @type {Date}
@@ -902,13 +1175,13 @@ export interface V1Charge {
      * @type {string}
      * @memberof V1Charge
      */
-    currency?: string;
+    currency: string;
     /**
      * 描述信息
      * @type {string}
      * @memberof V1Charge
      */
-    description?: string;
+    description: string;
     /**
      * 订单过期时间戳
      * @type {string}
@@ -926,25 +1199,25 @@ export interface V1Charge {
      * @type {string}
      * @memberof V1Charge
      */
-    failureCode?: string;
+    failureCode: string;
     /**
      * 收单机构错误描述信息
      * @type {string}
      * @memberof V1Charge
      */
-    failureMsg?: string;
+    failureMsg: string;
     /**
      * 表明是否是沙箱环境
      * @type {boolean}
      * @memberof V1Charge
      */
-    liveMode?: boolean;
+    liveMode: boolean;
     /**
      * 商户系统订单号，APP下需唯一
      * @type {string}
      * @memberof V1Charge
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
      * 订单元数据，原样返回
      * @type {{ [key: string]: string; }}
@@ -956,13 +1229,13 @@ export interface V1Charge {
      * @type {string}
      * @memberof V1Charge
      */
-    object?: string;
+    object: string;
     /**
      * 表明是否已支付
      * @type {boolean}
      * @memberof V1Charge
      */
-    paid?: boolean;
+    paid: boolean;
     /**
      * 支付时间
      * @type {Date}
@@ -980,7 +1253,7 @@ export interface V1Charge {
      * @type {boolean}
      * @memberof V1Charge
      */
-    refunded?: boolean;
+    refunded: boolean;
     /**
      * Refund 对象列表
      * @type {Array<V1Refund>}
@@ -992,7 +1265,7 @@ export interface V1Charge {
      * @type {boolean}
      * @memberof V1Charge
      */
-    reversed?: boolean;
+    reversed: boolean;
     /**
      * 冲正时间
      * @type {Date}
@@ -1004,7 +1277,7 @@ export interface V1Charge {
      * @type {string}
      * @memberof V1Charge
      */
-    subject?: string;
+    subject: string;
     /**
      * 订单过期时间
      * @type {Date}
@@ -1016,13 +1289,13 @@ export interface V1Charge {
      * @type {string}
      * @memberof V1Charge
      */
-    transactionNo?: string;
+    transactionNo: string;
     /**
      * 订单生存时间，单位秒
      * @type {number}
      * @memberof V1Charge
      */
-    ttl?: number;
+    ttl: number;
 }
 
 /**
@@ -1128,7 +1401,7 @@ export interface V1ChargeListResponse {
      * @type {boolean}
      * @memberof V1ChargeListResponse
      */
-    hasMore?: boolean;
+    hasMore: boolean;
     /**
      * 返回对象的类型，此值为 ChargeList
      * @type {string}
@@ -1154,7 +1427,7 @@ export interface V1ChargeResponse {
      * @type {string}
      * @memberof V1ChargeResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -1163,6 +1436,24 @@ export interface V1ChargeResponse {
  * @interface V1ChargeRoutingResponse
  */
 export interface V1ChargeRoutingResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1ChargeRoutingResponse
+     */
+    chargeId: number;
+    /**
+     * 错误信息
+     * @type {V1ServiceError}
+     * @memberof V1ChargeRoutingResponse
+     */
+    error: V1ServiceError;
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1ChargeRoutingResponse
+     */
+    transactionId: number;
 }
 
 /**
@@ -1176,49 +1467,49 @@ export interface V1CreateChargeRequest {
      * @type {number}
      * @memberof V1CreateChargeRequest
      */
-    amount?: number;
+    amount: number;
     /**
      * [REQUIRED] 应用 id
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    appId?: string;
+    appId: string;
     /**
      * [REQUIRED] 服务明细
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    body?: string;
+    body: string;
     /**
      * [OPTIONAL] 回调地址，如不传则使用 APP 设置中的回调地址。若都为空，则无法跳回原页面
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    callbackUrl?: string;
+    callbackUrl: string;
     /**
      * [REQUIRED] 渠道名称
      * @type {Tradev1Channel}
      * @memberof V1CreateChargeRequest
      */
-    channel?: Tradev1Channel;
+    channel: Tradev1Channel;
     /**
      * [REQUIRED] 客户端机器 IP
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    clientIp?: string;
+    clientIp: string;
     /**
      * 货币单位。国内收单机构仅支持 CNY
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    currency?: string;
+    currency: string;
     /**
      * [OPTIONAL] 交易描述
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    description?: string;
+    description: string;
     /**
      * [OPTIONAL] 各支付渠道元数据
      * @type {V1CreateChargeRequestExtra}
@@ -1230,7 +1521,7 @@ export interface V1CreateChargeRequest {
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
      * [OPTIONAL] 订单元数据，原样返回
      * @type {{ [key: string]: string; }}
@@ -1242,25 +1533,25 @@ export interface V1CreateChargeRequest {
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    notificationArea?: string;
+    notificationArea: string;
     /**
      * [OPTIONAL] 通知地址，如不传则使用 APP 设置中的通知地址。若都为空，则不发送通知
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    notifyUrl?: string;
+    notifyUrl: string;
     /**
      * [REQUIRED] 物品或服务名称（交易标题）
      * @type {string}
      * @memberof V1CreateChargeRequest
      */
-    subject?: string;
+    subject: string;
     /**
      * [OPTIONAL] 订单超时时间，单位秒
      * @type {number}
      * @memberof V1CreateChargeRequest
      */
-    ttl?: number;
+    ttl: number;
 }
 
 /**
@@ -1464,25 +1755,25 @@ export interface V1CreateRefundRequest {
      * @type {number}
      * @memberof V1CreateRefundRequest
      */
-    amount?: number;
+    amount: number;
     /**
      * [REQUIRED] 应用 id
      * @type {string}
      * @memberof V1CreateRefundRequest
      */
-    appId?: string;
+    appId: string;
     /**
      * [REQUIRED] 支付 Charge Id
      * @type {string}
      * @memberof V1CreateRefundRequest
      */
-    chargeId?: string;
+    chargeId: string;
     /**
      * [REQUIRED] 退款原因，最多 255 个 Unicode 字符。
      * @type {string}
      * @memberof V1CreateRefundRequest
      */
-    description?: string;
+    description: string;
     /**
      * [OPTIONAL] 退款 extra 参数。
      * @type {ProtobufAny}
@@ -1494,7 +1785,7 @@ export interface V1CreateRefundRequest {
      * @type {string}
      * @memberof V1CreateRefundRequest
      */
-    merchantRefundId?: string;
+    merchantRefundId: string;
     /**
      * [OPTIONAL] 参考元数据。
      * @type {{ [key: string]: string; }}
@@ -1514,31 +1805,75 @@ export interface V1CreateRoyaltyRequest {
      * @type {string}
      * @memberof V1CreateRoyaltyRequest
      */
-    appId?: string;
+    appId: string;
     /**
      * 结果通知地址
      * @type {string}
      * @memberof V1CreateRoyaltyRequest
      */
-    callbackUrl?: string;
+    callbackUrl: string;
     /**
      * Charge ID
      * @type {string}
      * @memberof V1CreateRoyaltyRequest
      */
-    chargeId?: string;
+    chargeId: string;
+    /**
+     * 分账的原因描述，分账账单中需要体现，不超过 80 个字符
+     * @type {string}
+     * @memberof V1CreateRoyaltyRequest
+     */
+    description: string;
     /**
      * Order ID
      * @type {string}
      * @memberof V1CreateRoyaltyRequest
      */
-    orderId?: string;
+    orderId: string;
     /**
      * 分润接受方列表
      * @type {Array<CreateRoyaltyRequestRoyaltyReceiver>}
      * @memberof V1CreateRoyaltyRequest
      */
-    receivers?: Array<CreateRoyaltyRequestRoyaltyReceiver>;
+    receivers: Array<CreateRoyaltyRequestRoyaltyReceiver>;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1CreateSettlementAccountRequest
+ */
+export interface V1CreateSettlementAccountRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof V1CreateSettlementAccountRequest
+     */
+    appId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1CreateSettlementAccountRequest
+     */
+    businessUserId?: string;
+    /**
+     * 
+     * @type {V1SettlementAccountChannel}
+     * @memberof V1CreateSettlementAccountRequest
+     */
+    channel?: V1SettlementAccountChannel;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1CreateSettlementAccountRequest
+     */
+    customerId?: string;
+    /**
+     * 
+     * @type {V1SettlementAccountRecipient}
+     * @memberof V1CreateSettlementAccountRequest
+     */
+    recipient?: V1SettlementAccountRecipient;
 }
 
 /**
@@ -1548,101 +1883,107 @@ export interface V1CreateRoyaltyRequest {
  */
 export interface V1CreateUserRequest {
     /**
-     * 
+     * [OPTIONAL] 用户地址
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    address?: string;
+    address: string;
     /**
-     * 
+     * App ID
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    appId?: string;
+    appId: string;
     /**
-     * 
+     * [OPTIONAL] 用户可用余额
      * @type {number}
      * @memberof V1CreateUserRequest
      */
-    availableBalance?: number;
+    availableBalance: number;
     /**
-     * 
+     * [OPTIONAL] 用户头像
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    avatar?: string;
+    avatar: string;
     /**
-     * 
+     * [OPTIONAL] 用户创建时间
+     * @type {number}
+     * @memberof V1CreateUserRequest
+     */
+    created: number;
+    /**
+     * [OPTIONAL] 用户货币
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    created?: string;
+    currency: string;
     /**
-     * 
+     * [OPTIONAL] 用户描述
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    currency?: string;
+    description: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1CreateUserRequest
-     */
-    description?: string;
-    /**
-     * 
+     * [OPTIONAL] 是否禁用，默认为 false
      * @type {boolean}
      * @memberof V1CreateUserRequest
      */
-    disabled?: boolean;
+    disabled: boolean;
     /**
-     * 
+     * [OPTIONAL] 用户邮箱
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    email?: string;
+    email: string;
     /**
-     * 
+     * [OPTIONAL] 用户性别
      * @type {V1Gender}
      * @memberof V1CreateUserRequest
      */
-    gender?: V1Gender;
+    gender: V1Gender;
     /**
-     * 
+     * [OPTIONAL] 用户元数据
      * @type {{ [key: string]: string; }}
      * @memberof V1CreateUserRequest
      */
-    metadata?: { [key: string]: string; };
+    metadata: { [key: string]: string; };
     /**
-     * 
+     * [OPTIONAL] 用户名
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    name?: string;
+    name: string;
     /**
-     * 
+     * [OPTIONAL] 用户昵称
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    outUserId?: string;
+    nickname: string;
     /**
-     * 
+     * [REQUIRED] 商户系统用户 ID
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    parentUserId?: string;
+    outUserId: string;
     /**
-     * 
+     * [OPTIONAL] 父用户 ID
      * @type {string}
      * @memberof V1CreateUserRequest
      */
-    phone?: string;
+    parentUserId: string;
     /**
-     * 
+     * [OPTIONAL] 用户手机号
+     * @type {string}
+     * @memberof V1CreateUserRequest
+     */
+    phone: string;
+    /**
+     * [OPTIONAL] 用户可提现余额
      * @type {number}
      * @memberof V1CreateUserRequest
      */
-    withdrawableBalance?: number;
+    withdrawableBalance: number;
 }
 
 /**
@@ -1734,7 +2075,7 @@ export interface V1Customer {
      * @type {string}
      * @memberof V1Customer
      */
-    object?: string;
+    object: string;
     /**
      * 
      * @type {string}
@@ -1772,7 +2113,7 @@ export interface V1CustomerListResponse {
      * @type {string}
      * @memberof V1CustomerListResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -1818,7 +2159,7 @@ export interface V1DeleteCustomerResponse {
      * @type {string}
      * @memberof V1DeleteCustomerResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -1878,7 +2219,7 @@ export interface V1DeleteUserResponse {
      * @type {string}
      * @memberof V1DeleteUserResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -1892,31 +2233,31 @@ export interface V1ExtraAlipayApp {
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    creditAgreementId?: string;
+    creditAgreementId: string;
     /**
      * [ONLY IN RESPONSE] 信用支付业务订单号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    creditBizOrderId?: string;
+    creditBizOrderId: string;
     /**
      * [ONLY IN RESPONSE] 信用支付模式
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    creditPayMode?: string;
+    creditPayMode: string;
     /**
      * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    disablePayChannels?: string;
+    disablePayChannels: string;
     /**
      * 可用渠道
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    enablePayChannels?: string;
+    enablePayChannels: string;
     /**
      * 外部指定买家
      * @type {V1ExtraAlipayExtUserInfo}
@@ -1940,37 +2281,37 @@ export interface V1ExtraAlipayApp {
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    goodsType?: string;
+    goodsType: string;
     /**
      * [ONLY IN RESPONSE] 商户订单号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
      * [ONLY IN RESPONSE] App 用于拉起支付的请求字符串
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    payParam?: string;
+    payParam: string;
     /**
      * 销售产品码，商家和支付宝签约的产品码
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    productCode?: string;
+    productCode: string;
     /**
      * [ONLY IN RESPONSE] 支付宝卖家支付宝用户ID
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    sellerId?: string;
+    sellerId: string;
     /**
      * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayApp
      */
-    storeId?: string;
+    storeId: string;
 }
 
 /**
@@ -2016,43 +2357,43 @@ export interface V1ExtraAlipayExtUserInfo {
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    certNo?: string;
+    certNo: string;
     /**
      * 真实用户的证件类型
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    certType?: string;
+    certType: string;
     /**
      * 是否是实名用户
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    fixBuyer?: string;
+    fixBuyer: string;
     /**
      * 真实用户的证件有效期的起始时间
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    minAge?: string;
+    minAge: string;
     /**
      * 真实用户的手机号码
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    mobile?: string;
+    mobile: string;
     /**
      * 真实用户的姓名
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    name?: string;
+    name: string;
     /**
      * 是否需要补充身份信息
      * @type {string}
      * @memberof V1ExtraAlipayExtUserInfo
      */
-    needCheckInfo?: string;
+    needCheckInfo: string;
 }
 
 /**
@@ -2066,37 +2407,37 @@ export interface V1ExtraAlipayExtendParams {
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    cardType?: string;
+    cardType: string;
     /**
      * 使用花呗分期要进行的分期数
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    hbFqNum?: string;
+    hbFqNum: string;
     /**
      * 使用花呗分期需要卖家承担的手续费比例的百分值，传入100代表100%
      * @type {number}
      * @memberof V1ExtraAlipayExtendParams
      */
-    hbFqSellerPercent?: number;
+    hbFqSellerPercent: number;
     /**
      * 行业数据回流信息
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    industryRefluxInfo?: string;
+    industryRefluxInfo: string;
     /**
      * 指定收款支付宝用户名
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    specifiedSellerName?: string;
+    specifiedSellerName: string;
     /**
      * 系统商编号，该参数作为系统商返佣数据提取的依据，请填写系统商签约协议的PID
      * @type {string}
      * @memberof V1ExtraAlipayExtendParams
      */
-    sysServiceProviderId?: string;
+    sysServiceProviderId: string;
 }
 
 /**
@@ -2144,55 +2485,55 @@ export interface V1ExtraAlipayGoodsDetail {
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    alipayGoodsId?: string;
+    alipayGoodsId: string;
     /**
      * 商品描述
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    body?: string;
+    body: string;
     /**
      * 商品类目树
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    categoriesTree?: string;
+    categoriesTree: string;
     /**
      * 商品类目
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    goodsCategory?: string;
+    goodsCategory: string;
     /**
      * 商品编号
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    goodsId?: string;
+    goodsId: string;
     /**
      * 商品名称
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    goodsName?: string;
+    goodsName: string;
     /**
      * 价格
      * @type {number}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    price?: number;
+    price: number;
     /**
      * 商品数量
      * @type {number}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    quantity?: number;
+    quantity: number;
     /**
      * 商品显示链接
      * @type {string}
      * @memberof V1ExtraAlipayGoodsDetail
      */
-    showUrl?: string;
+    showUrl: string;
 }
 
 /**
@@ -2226,7 +2567,7 @@ export interface V1ExtraAlipayLite {
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    body?: string;
+    body: string;
     /**
      * 业务扩展参数
      * @type {V1ExtraAlipayBusinessParams}
@@ -2238,7 +2579,7 @@ export interface V1ExtraAlipayLite {
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    buyerId?: string;
+    buyerId: string;
     /**
      * 可打折金额. 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000] 如果该值未传入，但传入了【订单总金额】，【不可打折金额】则该值默认为【订单总金额】-【不可打折金额】
      * @type {number}
@@ -2262,13 +2603,13 @@ export interface V1ExtraAlipayLite {
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    operatorId?: string;
+    operatorId: string;
     /**
      * 销售产品码，商家和支付宝签约的产品码，为固定值 FACE_TO_FACE_PAYMENT
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    productCode?: string;
+    productCode: string;
     /**
      * 收货信息
      * @type {V1ExtraAlipayReceiverAddressInfo}
@@ -2280,7 +2621,7 @@ export interface V1ExtraAlipayLite {
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    sellerId?: string;
+    sellerId: string;
     /**
      * 结算信息
      * @type {V1ExtraAlipaySettleInfo}
@@ -2292,31 +2633,31 @@ export interface V1ExtraAlipayLite {
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    storeId?: string;
+    storeId: string;
     /**
      * 商户机具终端编号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    terminalId?: string;
+    terminalId: string;
     /**
      * 绝对超时时间，格式为yyyy-MM-dd HH:mm:ss
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 订单有效时间，该时间段内订单可以进行支付，结束后订单将关闭，天数为0表示永久有效
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    timeoutExpress?: string;
+    timeoutExpress: string;
     /**
      * [ONLY IN RESPONSE] 支付宝交易号
      * @type {string}
      * @memberof V1ExtraAlipayLite
      */
-    tradeNo?: string;
+    tradeNo: string;
     /**
      * 不可打折金额. 不参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000] 如果该值未传入，但传入了【订单总金额】,【可打折金额】，则该值默认为【订单总金额】-【可打折金额】
      * @type {number}
@@ -2350,19 +2691,19 @@ export interface V1ExtraAlipayPage {
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    businessParams?: number;
+    businessParams: number;
     /**
      * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    disablePayChannels?: string;
+    disablePayChannels: string;
     /**
      * 可用渠道
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    enablePayChannels?: string;
+    enablePayChannels: string;
     /**
      * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
@@ -2380,13 +2721,13 @@ export interface V1ExtraAlipayPage {
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    goodsType?: string;
+    goodsType: string;
     /**
      * 支付宝用户ID
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    integrationType?: number;
+    integrationType: number;
     /**
      * 发票信息
      * @type {V1ExtraAlipayInvoiceInfo}
@@ -2398,49 +2739,49 @@ export interface V1ExtraAlipayPage {
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
      * [ONLY IN RESPONSE] 支付链接
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    payUrl?: string;
+    payUrl: string;
     /**
      * 优惠参数
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    promoParams?: string;
+    promoParams: string;
     /**
      * 扫码支付模式
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    qrPayMode?: string;
+    qrPayMode: string;
     /**
      * 二维码宽度
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    qrcodeWidth?: number;
+    qrcodeWidth: number;
     /**
      * 请求来源地址
      * @type {number}
      * @memberof V1ExtraAlipayPage
      */
-    requestFromUrl?: number;
+    requestFromUrl: number;
     /**
      * [ONLY IN RESPONSE] 收款支付宝用户ID
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    sellerId?: string;
+    sellerId: string;
     /**
      * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayPage
      */
-    storeId?: string;
+    storeId: string;
     /**
      * 二级商户信息
      * @type {V1ExtraAlipaySubMerchant}
@@ -2480,7 +2821,7 @@ export interface V1ExtraAlipayQr {
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    buyerId?: string;
+    buyerId: string;
     /**
      * 可打折金额. 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000] 如果该值未传入，但传入了【订单总金额】，【不可打折金额】则该值默认为【订单总金额】-【不可打折金额】
      * @type {string}
@@ -2498,43 +2839,43 @@ export interface V1ExtraAlipayQr {
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    operatorId?: string;
+    operatorId: string;
     /**
      * 销售产品码，商家和支付宝签约的产品码，为固定值QUICK_MSECURITY_PAY
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    productCode?: string;
+    productCode: string;
     /**
      * [ONLY IN RESPONSE] 二维码
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    qrCode?: string;
+    qrCode: string;
     /**
      * 支付场景。 条码支付，取值：bar_code； 声波支付，取值：wave_code
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    qrCodeTimeoutExpress?: string;
+    qrCodeTimeoutExpress: string;
     /**
      * [ONLY IN RESPONSE] 二维码图片的URL地址
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    qrLink?: string;
+    qrLink: string;
     /**
      * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    storeId?: string;
+    storeId: string;
     /**
      * 商户机具终端编号
      * @type {string}
      * @memberof V1ExtraAlipayQr
      */
-    terminalId?: string;
+    terminalId: string;
 }
 
 /**
@@ -2586,67 +2927,67 @@ export interface V1ExtraAlipayScan {
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    advancePaymentType?: string;
+    advancePaymentType: string;
     /**
      * 用户的条码
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    authCode?: string;
+    authCode: string;
     /**
      * 授权确认方式
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    authConfirmMode?: string;
+    authConfirmMode: string;
     /**
      * 授权号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    authNo?: string;
+    authNo: string;
     /**
      * 买家的支付宝用户id
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    buyerId?: string;
+    buyerId: string;
     /**
      * [ONLY IN RESPONSE] 买家支付宝账号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    buyerLogonId?: string;
+    buyerLogonId: string;
     /**
      * [ONLY IN RESPONSE] 付款金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    buyerPayAmount?: number;
+    buyerPayAmount: number;
     /**
      * [ONLY IN RESPONSE] 买家在支付宝的用户id
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    buyerUserId?: string;
+    buyerUserId: string;
     /**
      * [ONLY IN RESPONSE] 商家优惠金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    discountAmount?: number;
+    discountAmount: number;
     /**
      * [ONLY IN RESPONSE] 商家优惠商品明细
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    discountGoodsDetail?: string;
+    discountGoodsDetail: string;
     /**
      * 可打折金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    discountableAmount?: number;
+    discountableAmount: number;
     /**
      * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
@@ -2664,7 +3005,7 @@ export interface V1ExtraAlipayScan {
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    gmtPayment?: string;
+    gmtPayment: string;
     /**
      * 商品明细列表
      * @type {Array<V1ExtraAlipayGoodsDetail>}
@@ -2676,7 +3017,7 @@ export interface V1ExtraAlipayScan {
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    invoiceAmount?: number;
+    invoiceAmount: number;
     /**
      * 是否异步支付
      * @type {V1ExtraAlipayPayParams}
@@ -2688,73 +3029,73 @@ export interface V1ExtraAlipayScan {
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    operatorId?: string;
+    operatorId: string;
     /**
      * [ONLY IN RESPONSE] 支付宝返回的支付参数
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    payParams?: string;
+    payParams: string;
     /**
      * [ONLY IN RESPONSE] 集分宝金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    pointAmount?: number;
+    pointAmount: number;
     /**
      * 销售产品码
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    productCode?: string;
+    productCode: string;
     /**
      * 商户授权查询类型
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    queryOptions?: string;
+    queryOptions: string;
     /**
      * [ONLY IN RESPONSE] 实收金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    receiptAmount?: number;
+    receiptAmount: number;
     /**
      * 请求方机构id
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    requestOrgPid?: string;
+    requestOrgPid: string;
     /**
      * 支付场景
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    scene?: string;
+    scene: string;
     /**
      * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    storeId?: string;
+    storeId: string;
     /**
      * [ONLY IN RESPONSE] 商户门店名称
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    storeName?: string;
+    storeName: string;
     /**
      * 商户机具终端编号
      * @type {string}
      * @memberof V1ExtraAlipayScan
      */
-    terminalId?: string;
+    terminalId: string;
     /**
      * [ONLY IN RESPONSE] 订单金额
      * @type {number}
      * @memberof V1ExtraAlipayScan
      */
-    totalAmount?: number;
+    totalAmount: number;
     /**
      * [ONLY IN RESPONSE] 商家优惠明细列表
      * @type {V1ExtraAlipayVoucherDetailList}
@@ -2794,13 +3135,13 @@ export interface V1ExtraAlipaySubMerchant {
      * @type {string}
      * @memberof V1ExtraAlipaySubMerchant
      */
-    merchantId?: string;
+    merchantId: string;
     /**
      * 商户类型，1：支付宝服务窗，2：第三方App，目前只支持支付宝服务窗，默认为1
      * @type {string}
      * @memberof V1ExtraAlipaySubMerchant
      */
-    merchantType?: string;
+    merchantType: string;
 }
 
 /**
@@ -2888,25 +3229,25 @@ export interface V1ExtraAlipayWap {
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    authToken?: string;
+    authToken: string;
     /**
      * 业务扩展参数
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    businessParams?: string;
+    businessParams: string;
     /**
      * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    disablePayChannels?: string;
+    disablePayChannels: string;
     /**
      * 可用渠道
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    enablePayChannels?: string;
+    enablePayChannels: string;
     /**
      * 业务扩展参数
      * @type {V1ExtraAlipayExtendParams}
@@ -2930,55 +3271,55 @@ export interface V1ExtraAlipayWap {
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    goodsType?: string;
+    goodsType: string;
     /**
      * [ONLY IN RESPONSE] 商户订单号
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    merchantTradeId?: string;
+    merchantTradeId: string;
     /**
      * [ONLY IN RESPONSE] 支付链接
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    payUrl?: string;
+    payUrl: string;
     /**
      * 销售产品码
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    productCode?: string;
+    productCode: string;
     /**
      * 优惠参数
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    promoParams?: string;
+    promoParams: string;
     /**
      * 支付取消跳转的地址
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    quitUrl?: string;
+    quitUrl: string;
     /**
      * 支付成功跳转的地址
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    returnUrl?: string;
+    returnUrl: string;
     /**
      * [ONLY IN RESPONSE] 收款支付宝用户ID
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    sellerId?: string;
+    sellerId: string;
     /**
      * 商户门店编号
      * @type {string}
      * @memberof V1ExtraAlipayWap
      */
-    storeId?: string;
+    storeId: string;
     /**
      * 
      * @type {V1ExtraAlipayVoucherDetailList}
@@ -3016,13 +3357,13 @@ export interface V1ExtraWechatpayApp {
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
      * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    prepayId?: string;
+    prepayId: string;
     /**
      * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
@@ -3040,13 +3381,13 @@ export interface V1ExtraWechatpayApp {
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayApp
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3060,43 +3401,43 @@ export interface V1ExtraWechatpayAppConfig {
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    appid?: string;
+    appid: string;
     /**
      * 随机字符串
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    noncestr?: string;
+    noncestr: string;
     /**
      * 扩展字段
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    _package?: string;
+    _package: string;
     /**
      * 商户号
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    partnerid?: string;
+    partnerid: string;
     /**
      * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    prepayid?: string;
+    prepayid: string;
     /**
      * 签名
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    sign?: string;
+    sign: string;
     /**
      * 时间戳
      * @type {string}
      * @memberof V1ExtraWechatpayAppConfig
      */
-    timestamp?: string;
+    timestamp: string;
 }
 
 /**
@@ -3110,37 +3451,37 @@ export interface V1ExtraWechatpayAppletConfig {
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    appId?: string;
+    appId: string;
     /**
      * 随机字符串
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    nonceStr?: string;
+    nonceStr: string;
     /**
      * 扩展字段
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    _package?: string;
+    _package: string;
     /**
      * 签名
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    paySign?: string;
+    paySign: string;
     /**
      * 签名类型
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    signType?: string;
+    signType: string;
     /**
      * 时间戳
      * @type {string}
      * @memberof V1ExtraWechatpayAppletConfig
      */
-    timeStamp?: string;
+    timeStamp: string;
 }
 
 /**
@@ -3192,25 +3533,25 @@ export interface V1ExtraWechatpayH5 {
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
      * 支付签名
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    paySign?: string;
+    paySign: string;
     /**
      * 支付链接
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    payUrl?: string;
+    payUrl: string;
     /**
      * 预支付交易会话标识
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    prepayId?: string;
+    prepayId: string;
     /**
      * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
@@ -3228,25 +3569,25 @@ export interface V1ExtraWechatpayH5 {
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    timeStart?: string;
+    timeStart: string;
     /**
      * WAP网站名
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    wapName?: string;
+    wapName: string;
     /**
      * WAP网站URL
      * @type {string}
      * @memberof V1ExtraWechatpayH5
      */
-    wapUrl?: string;
+    wapUrl: string;
 }
 
 /**
@@ -3272,7 +3613,7 @@ export interface V1ExtraWechatpayJsapi {
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
      * jsapi支付配置信息
      * @type {V1ExtraWechatpayJsapiConfig}
@@ -3290,7 +3631,7 @@ export interface V1ExtraWechatpayJsapi {
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    prepayId?: string;
+    prepayId: string;
     /**
      * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
@@ -3308,13 +3649,13 @@ export interface V1ExtraWechatpayJsapi {
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayJsapi
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3328,37 +3669,37 @@ export interface V1ExtraWechatpayJsapiConfig {
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    appId?: string;
+    appId: string;
     /**
      * 随机字符串
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    nonceStr?: string;
+    nonceStr: string;
     /**
      * 扩展字段
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    _package?: string;
+    _package: string;
     /**
      * 签名
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    paySign?: string;
+    paySign: string;
     /**
      * 签名类型
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    signType?: string;
+    signType: string;
     /**
      * 时间戳
      * @type {string}
      * @memberof V1ExtraWechatpayJsapiConfig
      */
-    timeStamp?: string;
+    timeStamp: string;
 }
 
 /**
@@ -3390,7 +3731,7 @@ export interface V1ExtraWechatpayLite {
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
      * 付款人信息
      * @type {V1ExtraWechatpayPayer}
@@ -3402,7 +3743,7 @@ export interface V1ExtraWechatpayLite {
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    prepayId?: string;
+    prepayId: string;
     /**
      * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
@@ -3420,13 +3761,13 @@ export interface V1ExtraWechatpayLite {
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayLite
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3452,19 +3793,19 @@ export interface V1ExtraWechatpayNative {
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
      * 二维码数据
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    qrCode?: string;
+    qrCode: string;
     /**
      * 二维码链接
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    qrLink?: string;
+    qrLink: string;
     /**
      * 场景信息
      * @type {V1ExtraWechatpaySceneInfo}
@@ -3482,13 +3823,13 @@ export interface V1ExtraWechatpayNative {
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayNative
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3502,13 +3843,13 @@ export interface V1ExtraWechatpayPayer {
      * @type {string}
      * @memberof V1ExtraWechatpayPayer
      */
-    appid?: string;
+    appid: string;
     /**
      * 下单前需获取到用户的 Openid。必需和 appid 一致
      * @type {string}
      * @memberof V1ExtraWechatpayPayer
      */
-    openid?: string;
+    openid: string;
 }
 
 /**
@@ -3528,25 +3869,25 @@ export interface V1ExtraWechatpayScan {
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    authCode?: string;
+    authCode: string;
     /**
      * 付款银行
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    bankType?: string;
+    bankType: string;
     /**
      * 现金支付金额
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    cashFee?: string;
+    cashFee: string;
     /**
      * 现金支付币种
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    cashFeeType?: string;
+    cashFeeType: string;
     /**
      * 商品详情
      * @type {V1ExtraWechatpayDetail}
@@ -3558,19 +3899,19 @@ export interface V1ExtraWechatpayScan {
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    feeType?: string;
+    feeType: string;
     /**
      * 订单优惠标记
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    goodsTag?: string;
+    goodsTag: string;
     /**
      * 是否关注公众账号
      * @type {boolean}
      * @memberof V1ExtraWechatpayScan
      */
-    isSubscribe?: boolean;
+    isSubscribe: boolean;
     /**
      * 付款人信息
      * @type {V1ExtraWechatpayPayer}
@@ -3594,43 +3935,43 @@ export interface V1ExtraWechatpayScan {
      * @type {number}
      * @memberof V1ExtraWechatpayScan
      */
-    settlementTotalFee?: number;
+    settlementTotalFee: number;
     /**
      * 终端IP
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    spbillCreateIp?: string;
+    spbillCreateIp: string;
     /**
      * 子商户是否关注公众账号
      * @type {boolean}
      * @memberof V1ExtraWechatpayScan
      */
-    subIsSubscribe?: boolean;
+    subIsSubscribe: boolean;
     /**
      * 子商户openid
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    subOpenid?: string;
+    subOpenid: string;
     /**
      * 支付完成时间
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    timeEnd?: string;
+    timeEnd: string;
     /**
      * 交易结束时间
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    timeExpire?: string;
+    timeExpire: string;
     /**
      * 交易起始时间
      * @type {string}
      * @memberof V1ExtraWechatpayScan
      */
-    timeStart?: string;
+    timeStart: string;
 }
 
 /**
@@ -3695,7 +4036,7 @@ export interface V1FinishRoyaltyResponse {
 export enum V1Gender {
     GENDERUNKNOWN = <any> 'GENDER_UNKNOWN',
     MALE = <any> 'MALE',
-    FEMALE = <any> 'FE_MALE',
+    FEMALE = <any> 'FEMALE',
     PRIVACY = <any> 'PRIVACY',
     ThirdGender = <any> 'ThirdGender'
 }
@@ -3711,25 +4052,25 @@ export interface V1ListAllCustomersRequestCreated {
      * @type {number}
      * @memberof V1ListAllCustomersRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllCustomersRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllCustomersRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllCustomersRequestCreated
      */
-    lte?: number;
+    lte: number;
 }
 
 /**
@@ -3743,25 +4084,51 @@ export interface V1ListAllRoyaltiesRequestCreated {
      * @type {number}
      * @memberof V1ListAllRoyaltiesRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllRoyaltiesRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllRoyaltiesRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllRoyaltiesRequestCreated
      */
-    lte?: number;
+    lte: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1ListAllRoyaltiesResponse
+ */
+export interface V1ListAllRoyaltiesResponse {
+    /**
+     * 分账列表
+     * @type {V1Royalty}
+     * @memberof V1ListAllRoyaltiesResponse
+     */
+    data: V1Royalty;
+    /**
+     * 是否还有更多
+     * @type {boolean}
+     * @memberof V1ListAllRoyaltiesResponse
+     */
+    hasMore: boolean;
+    /**
+     * 对象类型
+     * @type {string}
+     * @memberof V1ListAllRoyaltiesResponse
+     */
+    object: string;
 }
 
 /**
@@ -3775,25 +4142,25 @@ export interface V1ListAllSettlementAccountsRequestCreated {
      * @type {number}
      * @memberof V1ListAllSettlementAccountsRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllSettlementAccountsRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllSettlementAccountsRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllSettlementAccountsRequestCreated
      */
-    lte?: number;
+    lte: number;
 }
 
 /**
@@ -3807,25 +4174,25 @@ export interface V1ListAllUsersRequestCreated {
      * @type {number}
      * @memberof V1ListAllUsersRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllUsersRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllUsersRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1ListAllUsersRequestCreated
      */
-    lte?: number;
+    lte: number;
 }
 
 /**
@@ -3863,25 +4230,25 @@ export interface V1QueryChargeListRequestCreated {
      * @type {number}
      * @memberof V1QueryChargeListRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1QueryChargeListRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1QueryChargeListRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1QueryChargeListRequestCreated
      */
-    lte?: number;
+    lte: number;
 }
 
 /**
@@ -3901,25 +4268,25 @@ export interface V1Refund {
      * @type {number}
      * @memberof V1Refund
      */
-    amount?: number;
+    amount: number;
     /**
      * Charge 对象 id
      * @type {string}
      * @memberof V1Refund
      */
-    chargeId?: string;
+    chargeId: string;
     /**
      * 商户系统订单号
      * @type {string}
      * @memberof V1Refund
      */
-    chargeMerchantTradeId?: string;
+    chargeMerchantTradeId: string;
     /**
      * 退款创建时间
      * @type {number}
      * @memberof V1Refund
      */
-    created?: number;
+    created: number;
     /**
      * 退款创建时间
      * @type {Date}
@@ -3931,25 +4298,25 @@ export interface V1Refund {
      * @type {string}
      * @memberof V1Refund
      */
-    description?: string;
+    description: string;
     /**
      * 支付渠道失败错误码
      * @type {string}
      * @memberof V1Refund
      */
-    failureCode?: string;
+    failureCode: string;
     /**
      * 支付渠道失败原因描述
      * @type {string}
      * @memberof V1Refund
      */
-    failureMsg?: string;
+    failureMsg: string;
     /**
      * 退款是否成功
      * @type {boolean}
      * @memberof V1Refund
      */
-    isSuccess?: boolean;
+    isSuccess: boolean;
     /**
      * 元数据，原样返回
      * @type {{ [key: string]: string; }}
@@ -3961,25 +4328,25 @@ export interface V1Refund {
      * @type {string}
      * @memberof V1Refund
      */
-    refundId?: string;
+    refundId: string;
     /**
      * 退款单号
      * @type {string}
      * @memberof V1Refund
      */
-    refundNo?: string;
+    refundNo: string;
     /**
      * 退款状态
      * @type {string}
      * @memberof V1Refund
      */
-    status?: string;
+    status: string;
     /**
      * 退款成功时间
      * @type {number}
      * @memberof V1Refund
      */
-    succeedTs?: number;
+    succeedTs: number;
     /**
      * 退款成功时间
      * @type {Date}
@@ -3991,7 +4358,7 @@ export interface V1Refund {
      * @type {string}
      * @memberof V1Refund
      */
-    transactionNo?: string;
+    transactionNo: string;
 }
 
 /**
@@ -4001,11 +4368,11 @@ export interface V1Refund {
  */
 export interface V1RefundExtra {
     /**
-     * 支付宝退款元参数，可参考 https://opendocs.alipay.com/apis/0287wa
+     * 支付宝退款元参数，可参考 https://opendocs.payment_alipay.com/apis/0287wa
      * @type {V1RefundExtraAlipay}
      * @memberof V1RefundExtra
      */
-    alipay?: V1RefundExtraAlipay;
+    paymentAlipay?: V1RefundExtraAlipay;
     /**
      * 微信支付退款元参数，可参考 https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_9.shtml
      * @type {V1RefundExtraWechatPay}
@@ -4065,19 +4432,19 @@ export interface V1RefundListResponse {
      * @type {boolean}
      * @memberof V1RefundListResponse
      */
-    hasMore?: boolean;
+    hasMore: boolean;
     /**
      * 对象类型
      * @type {string}
      * @memberof V1RefundListResponse
      */
-    object?: string;
+    object: string;
     /**
      * 总数据条数
      * @type {number}
      * @memberof V1RefundListResponse
      */
-    total?: number;
+    total: number;
 }
 
 /**
@@ -4097,7 +4464,7 @@ export interface V1RefundResponse {
      * @type {string}
      * @memberof V1RefundResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -4106,6 +4473,24 @@ export interface V1RefundResponse {
  * @interface V1RefundRoutingResponse
  */
 export interface V1RefundRoutingResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1RefundRoutingResponse
+     */
+    chargeId: number;
+    /**
+     * 错误信息
+     * @type {V1ServiceError}
+     * @memberof V1RefundRoutingResponse
+     */
+    error: V1ServiceError;
+    /**
+     * 退款 ID
+     * @type {number}
+     * @memberof V1RefundRoutingResponse
+     */
+    refundId: number;
 }
 
 /**
@@ -4115,35 +4500,35 @@ export interface V1RefundRoutingResponse {
  */
 export interface V1Royalty {
     /**
-     * 
+     * 分账金额
      * @type {number}
      * @memberof V1Royalty
      */
-    amount?: number;
+    amount: number;
     /**
-     * 
+     * Charge ID
      * @type {string}
      * @memberof V1Royalty
      */
-    chargeId?: string;
+    chargeId: string;
     /**
-     * 
+     * 创建时间
+     * @type {number}
+     * @memberof V1Royalty
+     */
+    created: number;
+    /**
+     * 分账的原因描述，分账账单中需要体现，不超过 80 个字符
      * @type {string}
      * @memberof V1Royalty
      */
-    created?: string;
+    description: string;
     /**
-     * 
+     * 分账 ID
      * @type {string}
      * @memberof V1Royalty
      */
-    description?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1Royalty
-     */
-    id?: string;
+    id: string;
     /**
      * 
      * @type {boolean}
@@ -4151,59 +4536,53 @@ export interface V1Royalty {
      */
     livemode?: boolean;
     /**
-     * 
+     * 元数据
      * @type {{ [key: string]: string; }}
      * @memberof V1Royalty
      */
-    metadata?: { [key: string]: string; };
+    metadata: { [key: string]: string; };
     /**
-     * 
+     * 分账方式
      * @type {Tradev1RoyaltyMethod}
      * @memberof V1Royalty
      */
-    method?: Tradev1RoyaltyMethod;
+    method: Tradev1RoyaltyMethod;
     /**
      * 对象类型
      * @type {string}
      * @memberof V1Royalty
      */
-    object?: string;
+    object: string;
     /**
-     * 
+     * 订单 ID
      * @type {string}
      * @memberof V1Royalty
      */
-    orderId?: string;
+    orderId: string;
     /**
-     * 
+     * 付款方 App ID
      * @type {string}
      * @memberof V1Royalty
      */
-    payerAppId?: string;
+    payerAppId: string;
     /**
-     * 
+     * 付款方结算账户 ID
      * @type {string}
      * @memberof V1Royalty
      */
-    payerSettleAccountId?: string;
+    payerSettleAccountId: string;
     /**
-     * 
+     * 付款方用户 ID
      * @type {string}
      * @memberof V1Royalty
      */
-    payerUserId?: string;
+    payerUserId: string;
     /**
-     * 
+     * 分账结算单 ID
      * @type {string}
      * @memberof V1Royalty
      */
-    recipientUserId?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1Royalty
-     */
-    royaltySettlementId?: string;
+    royaltySettlementId: string;
     /**
      * 
      * @type {string}
@@ -4211,54 +4590,17 @@ export interface V1Royalty {
      */
     royaltySettlementTransactionId?: string;
     /**
-     * 
+     * 分账状态
      * @type {string}
      * @memberof V1Royalty
      */
-    status?: string;
+    status: string;
     /**
-     * 
-     * @type {string}
+     * 分账完成时间
+     * @type {number}
      * @memberof V1Royalty
      */
-    timeSettled?: string;
-}
-
-/**
- * 
- * @export
- * @interface V1RoyaltyListResponse
- */
-export interface V1RoyaltyListResponse {
-    /**
-     * 
-     * @type {V1Royalty}
-     * @memberof V1RoyaltyListResponse
-     */
-    data?: V1Royalty;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof V1RoyaltyListResponse
-     */
-    hasMore?: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltyListResponse
-     */
-    object?: string;
-}
-
-/**
- * 
- * @export
- * @enum {string}
- */
-export enum V1RoyaltyMode {
-    RoyaltyModeUnset = <any> 'royalty_mode_unset',
-    Fixed = <any> 'fixed',
-    Rate = <any> 'rate'
+    timeSettled: number;
 }
 
 /**
@@ -4278,7 +4620,7 @@ export interface V1RoyaltyResponse {
      * @type {string}
      * @memberof V1RoyaltyResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -4291,7 +4633,8 @@ export enum V1RoyaltyRoutingRequestRoyaltyMethod {
     CREATEROYALTY = <any> 'CREATE_ROYALTY',
     QUERYROYALTY = <any> 'QUERY_ROYALTY',
     FinishROYALTY = <any> 'Finish_ROYALTY',
-    RETURNROYALTY = <any> 'RETURN_ROYALTY'
+    RETURNROYALTY = <any> 'RETURN_ROYALTY',
+    QUERYRETURNROYALTY = <any> 'QUERY_RETURN_ROYALTY'
 }
 
 /**
@@ -4300,6 +4643,18 @@ export enum V1RoyaltyRoutingRequestRoyaltyMethod {
  * @interface V1RoyaltyRoutingResponse
  */
 export interface V1RoyaltyRoutingResponse {
+    /**
+     * 错误信息
+     * @type {V1ServiceError}
+     * @memberof V1RoyaltyRoutingResponse
+     */
+    error: V1ServiceError;
+    /**
+     * 分账单号
+     * @type {number}
+     * @memberof V1RoyaltyRoutingResponse
+     */
+    royaltyId: number;
 }
 
 /**
@@ -4309,77 +4664,71 @@ export interface V1RoyaltyRoutingResponse {
  */
 export interface V1RoyaltySettlement {
     /**
-     * 
+     * 结算金额
      * @type {number}
      * @memberof V1RoyaltySettlement
      */
-    amount?: number;
+    amount: number;
     /**
-     * 
+     * 结算取消金额
      * @type {number}
      * @memberof V1RoyaltySettlement
      */
-    amountCanceled?: number;
+    amountCanceled: number;
     /**
-     * 
+     * 结算失败金额
      * @type {number}
      * @memberof V1RoyaltySettlement
      */
-    amountFailed?: number;
+    amountFailed: number;
     /**
-     * 
+     * 结算成功金额
      * @type {number}
      * @memberof V1RoyaltySettlement
      */
-    amountSucceeded?: number;
+    amountSucceeded: number;
     /**
-     * 
+     * 付款方 App ID
      * @type {string}
      * @memberof V1RoyaltySettlement
      */
-    appId?: string;
+    appId: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltySettlement
-     */
-    count?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltySettlement
-     */
-    countCanceled?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltySettlement
-     */
-    countFailed?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltySettlement
-     */
-    countSucceeded?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltySettlement
-     */
-    created?: string;
-    /**
-     * 
+     * 分账总笔数
      * @type {number}
      * @memberof V1RoyaltySettlement
      */
-    fee?: number;
+    count: number;
     /**
-     * 
+     * 分账取消笔数
+     * @type {number}
+     * @memberof V1RoyaltySettlement
+     */
+    countCanceled: number;
+    /**
+     * 分账失败笔数
+     * @type {number}
+     * @memberof V1RoyaltySettlement
+     */
+    countFailed: number;
+    /**
+     * 分账成功笔数
+     * @type {number}
+     * @memberof V1RoyaltySettlement
+     */
+    countSucceeded: number;
+    /**
+     * 手续费
+     * @type {number}
+     * @memberof V1RoyaltySettlement
+     */
+    fee: number;
+    /**
+     * 分账结算单 ID
      * @type {string}
      * @memberof V1RoyaltySettlement
      */
-    id?: string;
+    id: string;
     /**
      * 
      * @type {boolean}
@@ -4387,53 +4736,47 @@ export interface V1RoyaltySettlement {
      */
     livemode?: boolean;
     /**
-     * 
+     * 元数据
      * @type {{ [key: string]: string; }}
      * @memberof V1RoyaltySettlement
      */
-    metadata?: { [key: string]: string; };
-    /**
-     * 
-     * @type {Tradev1RoyaltyMethod}
-     * @memberof V1RoyaltySettlement
-     */
-    method?: Tradev1RoyaltyMethod;
+    metadata: { [key: string]: string; };
     /**
      * 对象类型
      * @type {string}
      * @memberof V1RoyaltySettlement
      */
-    object?: string;
+    object: string;
     /**
-     * 
+     * 操作链接
      * @type {string}
      * @memberof V1RoyaltySettlement
      */
-    operationUrl?: string;
+    operationUrl: string;
     /**
-     * 
+     * 分账来源
      * @type {V1RoyaltySettlementSource}
      * @memberof V1RoyaltySettlement
      */
-    source?: V1RoyaltySettlementSource;
+    source: V1RoyaltySettlementSource;
     /**
-     * 
-     * @type {string}
+     * 结算状态
+     * @type {RoyaltySettlementRoyaltySettlementStatus}
      * @memberof V1RoyaltySettlement
      */
-    status?: string;
+    status: RoyaltySettlementRoyaltySettlementStatus;
     /**
-     * 
-     * @type {string}
+     * 分账完成时间
+     * @type {number}
      * @memberof V1RoyaltySettlement
      */
-    timeFinished?: string;
+    timeFinished: number;
     /**
-     * 
+     * 分账处理流水列表
      * @type {Array<V1RoyaltySettlementTransaction>}
      * @memberof V1RoyaltySettlement
      */
-    transactions?: Array<V1RoyaltySettlementTransaction>;
+    transactions: Array<V1RoyaltySettlementTransaction>;
 }
 
 /**
@@ -4443,23 +4786,23 @@ export interface V1RoyaltySettlement {
  */
 export interface V1RoyaltySettlementListResponse {
     /**
-     * 
+     * 分账结算单列表
      * @type {V1RoyaltySettlement}
      * @memberof V1RoyaltySettlementListResponse
      */
-    data?: V1RoyaltySettlement;
+    data: V1RoyaltySettlement;
     /**
-     * 
+     * 是否还有更多
      * @type {boolean}
      * @memberof V1RoyaltySettlementListResponse
      */
-    hasMore?: boolean;
+    hasMore: boolean;
     /**
-     * 
+     * 对象类型
      * @type {string}
      * @memberof V1RoyaltySettlementListResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -4469,17 +4812,17 @@ export interface V1RoyaltySettlementListResponse {
  */
 export interface V1RoyaltySettlementResponse {
     /**
-     * 
+     * 分账结算单
      * @type {V1RoyaltySettlement}
      * @memberof V1RoyaltySettlementResponse
      */
-    data?: V1RoyaltySettlement;
+    data: V1RoyaltySettlement;
     /**
-     * 
+     * 对象类型
      * @type {string}
      * @memberof V1RoyaltySettlementResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -4526,23 +4869,23 @@ export enum V1RoyaltySettlementSourceType {
  */
 export interface V1RoyaltySettlementTransaction {
     /**
-     * 
+     * 结算金额
      * @type {number}
      * @memberof V1RoyaltySettlementTransaction
      */
-    amount?: number;
+    amount: number;
     /**
-     * 
+     * 创建时间
+     * @type {number}
+     * @memberof V1RoyaltySettlementTransaction
+     */
+    created: number;
+    /**
+     * 失败原因
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    created?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof V1RoyaltySettlementTransaction
-     */
-    failureReason?: string;
+    failureReason: string;
     /**
      * 
      * @type {string}
@@ -4560,19 +4903,19 @@ export interface V1RoyaltySettlementTransaction {
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    object?: string;
+    object: string;
     /**
-     * 
+     * 接收方 App ID
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    recipientAppId?: string;
+    recipientAppId: string;
     /**
-     * 
+     * 接收方用户 ID
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    recipientUserId?: string;
+    recipientUserId: string;
     /**
      * 
      * @type {string}
@@ -4580,23 +4923,23 @@ export interface V1RoyaltySettlementTransaction {
      */
     royaltySettlementId?: string;
     /**
-     * 
+     * 结算状态
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    status?: string;
+    status: string;
     /**
-     * 
+     * 支付平分账处理流水 ID
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    transferId?: string;
+    transferId: string;
     /**
-     * 
+     * 接收方用户结算账户 ID
      * @type {string}
      * @memberof V1RoyaltySettlementTransaction
      */
-    userSettlementAccountId?: string;
+    userSettlementAccountId: string;
 }
 
 /**
@@ -4656,25 +4999,51 @@ export interface V1SearchCustomersRequestCreated {
      * @type {number}
      * @memberof V1SearchCustomersRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1SearchCustomersRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1SearchCustomersRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1SearchCustomersRequestCreated
      */
-    lte?: number;
+    lte: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1SearchRoyaltiesResponse
+ */
+export interface V1SearchRoyaltiesResponse {
+    /**
+     * 分账列表
+     * @type {V1Royalty}
+     * @memberof V1SearchRoyaltiesResponse
+     */
+    data: V1Royalty;
+    /**
+     * 是否还有更多
+     * @type {boolean}
+     * @memberof V1SearchRoyaltiesResponse
+     */
+    hasMore: boolean;
+    /**
+     * 对象类型
+     * @type {string}
+     * @memberof V1SearchRoyaltiesResponse
+     */
+    object: string;
 }
 
 /**
@@ -4688,25 +5057,51 @@ export interface V1SearchUsersRequestCreated {
      * @type {number}
      * @memberof V1SearchUsersRequestCreated
      */
-    gt?: number;
+    gt: number;
     /**
      * 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1SearchUsersRequestCreated
      */
-    gte?: number;
+    gte: number;
     /**
      * 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1SearchUsersRequestCreated
      */
-    lt?: number;
+    lt: number;
     /**
      * 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
      * @type {number}
      * @memberof V1SearchUsersRequestCreated
      */
-    lte?: number;
+    lte: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1ServiceError
+ */
+export interface V1ServiceError {
+    /**
+     * 错误码
+     * @type {number}
+     * @memberof V1ServiceError
+     */
+    errorCode: number;
+    /**
+     * 错误信息
+     * @type {string}
+     * @memberof V1ServiceError
+     */
+    errorMessage: string;
+    /**
+     * 错误原因
+     * @type {string}
+     * @memberof V1ServiceError
+     */
+    errorReason: string;
 }
 
 /**
@@ -4720,7 +5115,13 @@ export interface V1SettlementAccount {
      * @type {string}
      * @memberof V1SettlementAccount
      */
-    appId?: string;
+    appId: string;
+    /**
+     * 分账接收方的用户 ID
+     * @type {string}
+     * @memberof V1SettlementAccount
+     */
+    businessUserId: string;
     /**
      * 分账接收方的账户类型
      * @type {V1SettlementAccountChannel}
@@ -4732,19 +5133,25 @@ export interface V1SettlementAccount {
      * @type {number}
      * @memberof V1SettlementAccount
      */
-    created?: number;
+    created: number;
+    /**
+     * 分账接收方的用户 ID
+     * @type {string}
+     * @memberof V1SettlementAccount
+     */
+    customerId: string;
     /**
      * 分账接收方的唯一标识
      * @type {string}
      * @memberof V1SettlementAccount
      */
-    id?: string;
+    id: string;
     /**
      * 对象类型
      * @type {string}
      * @memberof V1SettlementAccount
      */
-    object?: string;
+    object: string;
     /**
      * 分账接收方的账户信息
      * @type {V1SettlementAccountRecipient}
@@ -4756,13 +5163,7 @@ export interface V1SettlementAccount {
      * @type {number}
      * @memberof V1SettlementAccount
      */
-    updated?: number;
-    /**
-     * 分账接收方的用户 ID
-     * @type {string}
-     * @memberof V1SettlementAccount
-     */
-    userId?: string;
+    updated: number;
 }
 
 /**
@@ -4773,9 +5174,10 @@ export interface V1SettlementAccount {
 export enum V1SettlementAccountChannel {
     CHANNELUNKNOWN = <any> 'CHANNEL_UNKNOWN',
     ALIPAY = <any> 'ALIPAY',
-    WECHANTPAY = <any> 'WECHANTPAY',
+    WECHATPAY = <any> 'WECHATPAY',
     BANK = <any> 'BANK',
-    BALANCE = <any> 'BALANCE'
+    BALANCE = <any> 'BALANCE',
+    YSEPAYMERCHANT = <any> 'YSEPAY_MERCHANT'
 }
 
 /**
@@ -4812,22 +5214,34 @@ export interface V1SettlementAccountListResponse {
 export interface V1SettlementAccountRecipient {
     /**
      * 
-     * @type {SettlementAccountRecipientAlipayChannelRecipient}
+     * @type {SettlementAccountRecipientBalanceChannelRecipient}
      * @memberof V1SettlementAccountRecipient
      */
-    alipayChannelRecipient?: SettlementAccountRecipientAlipayChannelRecipient;
+    balance?: SettlementAccountRecipientBalanceChannelRecipient;
     /**
      * 
      * @type {SettlementAccountRecipientBankChannelRecipient}
      * @memberof V1SettlementAccountRecipient
      */
-    bankChannelRecipient?: SettlementAccountRecipientBankChannelRecipient;
+    bank?: SettlementAccountRecipientBankChannelRecipient;
+    /**
+     * 
+     * @type {SettlementAccountRecipientAlipayChannelRecipient}
+     * @memberof V1SettlementAccountRecipient
+     */
+    paymentAlipay?: SettlementAccountRecipientAlipayChannelRecipient;
     /**
      * 
      * @type {SettlementAccountRecipientWechatpayChannelRecipient}
      * @memberof V1SettlementAccountRecipient
      */
-    wechatpayChannelRecipient?: SettlementAccountRecipientWechatpayChannelRecipient;
+    wechatpay?: SettlementAccountRecipientWechatpayChannelRecipient;
+    /**
+     * 
+     * @type {SettlementAccountRecipientYsepayMerchantRecipient}
+     * @memberof V1SettlementAccountRecipient
+     */
+    ysepayMerchant?: SettlementAccountRecipientYsepayMerchantRecipient;
 }
 
 /**
@@ -4869,49 +5283,93 @@ export interface V1UnionQrRequest {
      * @type {number}
      * @memberof V1UnionQrRequest
      */
-    amount?: number;
+    amount: number;
     /**
      * openid 对应的应用id
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    appid?: string;
+    appid: string;
     /**
      * 浏览器信息
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    browserAgent?: string;
+    browserAgent: string;
     /**
      * 设备编号
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    i?: string;
+    i: string;
     /**
      * 打开的app类型，微信/支付宝/qq/闪付
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    inApp?: string;
+    inApp: string;
     /**
      * 用户openid
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    openid?: string;
+    openid: string;
     /**
      * 订单备注
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    remark?: string;
+    remark: string;
     /**
      * 设备编号的签名
      * @type {string}
      * @memberof V1UnionQrRequest
      */
-    s?: string;
+    s: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1UpdateAndPatchRequestBody
+ */
+export interface V1UpdateAndPatchRequestBody {
+    /**
+     * 
+     * @type {string}
+     * @memberof V1UpdateAndPatchRequestBody
+     */
+    appId?: string;
+    /**
+     * 
+     * @type {V1SettlementAccountChannel}
+     * @memberof V1UpdateAndPatchRequestBody
+     */
+    channel?: V1SettlementAccountChannel;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1UpdateAndPatchRequestBody
+     */
+    customerId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1UpdateAndPatchRequestBody
+     */
+    id?: string;
+    /**
+     * 
+     * @type {V1SettlementAccountRecipient}
+     * @memberof V1UpdateAndPatchRequestBody
+     */
+    recipient?: V1SettlementAccountRecipient;
+    /**
+     * 
+     * @type {string}
+     * @memberof V1UpdateAndPatchRequestBody
+     */
+    userId?: string;
 }
 
 /**
@@ -4999,11 +5457,17 @@ export interface V1User {
      */
     name?: string;
     /**
+     * 
+     * @type {string}
+     * @memberof V1User
+     */
+    nickname?: string;
+    /**
      * 对象类型
      * @type {string}
      * @memberof V1User
      */
-    object?: string;
+    object: string;
     /**
      * 
      * @type {string}
@@ -5053,7 +5517,7 @@ export interface V1UserListResponse {
      * @type {string}
      * @memberof V1UserListResponse
      */
-    object?: string;
+    object: string;
 }
 
 /**
@@ -5112,9 +5576,387 @@ export interface V1WechatpayNotifyResponse {
 export const DefaultApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * 创建 Business User 对象。商业用户是本系统中的一种账户类型，在交易完成之后可以对该类型的账户进行分账等操作。
+         * @summary 创建 Business User 对象
+         * @param {V1CreateUserRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceCreateUser(body: V1CreateUserRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling businessUserServiceCreateUser.');
+            }
+            const localVarPath = `/v1/business_users`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1CreateUserRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 删除 Business User 对象
+         * @summary 删除 Business User 对象
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceDeleteUser(id: string, appId?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling businessUserServiceDeleteUser.');
+            }
+            const localVarPath = `/v1/business_users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询 Business User 对象列表
+         * @summary 查询 Business User 对象列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options: any = {}): FetchArgs {
+            const localVarPath = `/v1/business_users`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (startingAfter !== undefined) {
+                localVarQueryParameter['starting_after'] = startingAfter;
+            }
+
+            if (endingBefore !== undefined) {
+                localVarQueryParameter['ending_before'] = endingBefore;
+            }
+
+            if (createdLt !== undefined) {
+                localVarQueryParameter['created.lt'] = createdLt;
+            }
+
+            if (createdLte !== undefined) {
+                localVarQueryParameter['created.lte'] = createdLte;
+            }
+
+            if (createdGt !== undefined) {
+                localVarQueryParameter['created.gt'] = createdGt;
+            }
+
+            if (createdGte !== undefined) {
+                localVarQueryParameter['created.gte'] = createdGte;
+            }
+
+            if (disabled !== undefined) {
+                localVarQueryParameter['disabled'] = disabled;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询 Business User 对象
+         * @summary 查询 Business User 对象
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceRetrieveUser(id: string, appId?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling businessUserServiceRetrieveUser.');
+            }
+            const localVarPath = `/v1/business_users/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询 Business User 对象列表
+         * @summary 查询 Business User 对象列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
+         * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
+         * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/v1/business_users/search`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (createdLt !== undefined) {
+                localVarQueryParameter['created.lt'] = createdLt;
+            }
+
+            if (createdLte !== undefined) {
+                localVarQueryParameter['created.lte'] = createdLte;
+            }
+
+            if (createdGt !== undefined) {
+                localVarQueryParameter['created.gt'] = createdGt;
+            }
+
+            if (createdGte !== undefined) {
+                localVarQueryParameter['created.gte'] = createdGte;
+            }
+
+            if (email !== undefined) {
+                localVarQueryParameter['email'] = email;
+            }
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
+            }
+
+            if (phone !== undefined) {
+                localVarQueryParameter['phone'] = phone;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 更新 Business User 对象
+         * @summary 更新 Business User 对象
+         * @param {string} userId 
+         * @param {V1BusinessUser} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceUpdateUser(userId: string, body: V1BusinessUser, updateMask?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling businessUserServiceUpdateUser.');
+            }
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling businessUserServiceUpdateUser.');
+            }
+            const localVarPath = `/v1/business_users/{user.id}`
+                .replace(`{${"user.id"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (updateMask !== undefined) {
+                localVarQueryParameter['updateMask'] = updateMask;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1BusinessUser" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 更新 Business User 对象
+         * @summary 更新 Business User 对象
+         * @param {string} userId 
+         * @param {V1BusinessUser} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceUpdateUser2(userId: string, body: V1BusinessUser, updateMask?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling businessUserServiceUpdateUser2.');
+            }
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling businessUserServiceUpdateUser2.');
+            }
+            const localVarPath = `/v1/business_users/{user.id}`
+                .replace(`{${"user.id"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (updateMask !== undefined) {
+                localVarQueryParameter['updateMask'] = updateMask;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1BusinessUser" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
          * @summary 创建 Charge 对象
-         * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+         * @param {V1CreateChargeRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5154,7 +5996,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
          * @summary 创建 Charge 对象
-         * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+         * @param {V1CreateChargeRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5287,7 +6129,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -5296,7 +6138,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
+        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
             const localVarPath = `/transaction/v1/charges`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -5393,7 +6235,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -5402,7 +6244,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
+        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
             const localVarPath = `/v1/charges`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -5491,11 +6333,10 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
          * @summary 撤销 Charge 对象
          * @param {string} chargeId Charge 对象 id
-         * @param {string} [appId] [REQUIRED] 应用 id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceReverseCharge(chargeId: string, appId?: string, options: any = {}): FetchArgs {
+        chargeServiceReverseCharge(chargeId: string, options: any = {}): FetchArgs {
             // verify required parameter 'chargeId' is not null or undefined
             if (chargeId === null || chargeId === undefined) {
                 throw new RequiredError('chargeId','Required parameter chargeId was null or undefined when calling chargeServiceReverseCharge.');
@@ -5515,10 +6356,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
             }
 
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -5533,11 +6370,10 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
          * @summary 撤销 Charge 对象
          * @param {string} chargeId Charge 对象 id
-         * @param {string} [appId] [REQUIRED] 应用 id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceReverseCharge2(chargeId: string, appId?: string, options: any = {}): FetchArgs {
+        chargeServiceReverseCharge2(chargeId: string, options: any = {}): FetchArgs {
             // verify required parameter 'chargeId' is not null or undefined
             if (chargeId === null || chargeId === undefined) {
                 throw new RequiredError('chargeId','Required parameter chargeId was null or undefined when calling chargeServiceReverseCharge2.');
@@ -5555,10 +6391,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
 					? configuration.apiKey("X-JUSTAP-API-KEY")
 					: configuration.apiKey;
                 localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -5782,7 +6614,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
          * @summary 创建 Refund 对象
-         * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+         * @param {V1CreateRefundRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5822,7 +6654,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
          * @summary 创建 Refund 对象
-         * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+         * @param {V1CreateRefundRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5859,6 +6691,662 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 对一个 Charge 对象进行分账，分账的金额和分账接收方由 Royalty 对象指定。Royalty 创建仅代表本系统成功接收分账申请，尚未提交到支付机构清分，更不代表分账立即成功，相关结果信息请调用查询接口确认
+         * @summary 创建 Royalty 对象
+         * @param {V1CreateRoyaltyRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling royaltyServiceCreateRoyalty.');
+            }
+            const localVarPath = `/v1/royalties`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1CreateRoyaltyRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询 Royalty 对象的列表信息
+         * @summary 查询 Royalty 对象列表
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {string} [merchantTradeId] [OPTIONAL] 客户系统订单号
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {string} [appId] 
+         * @param {string} [settleAccountId] 
+         * @param {string} [royaltySettlementId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceListAllRoyalties(limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, appId?: string, settleAccountId?: string, royaltySettlementId?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/v1/royalties`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (startingAfter !== undefined) {
+                localVarQueryParameter['starting_after'] = startingAfter;
+            }
+
+            if (endingBefore !== undefined) {
+                localVarQueryParameter['ending_before'] = endingBefore;
+            }
+
+            if (merchantTradeId !== undefined) {
+                localVarQueryParameter['merchant_trade_id'] = merchantTradeId;
+            }
+
+            if (createdLt !== undefined) {
+                localVarQueryParameter['created.lt'] = createdLt;
+            }
+
+            if (createdLte !== undefined) {
+                localVarQueryParameter['created.lte'] = createdLte;
+            }
+
+            if (createdGt !== undefined) {
+                localVarQueryParameter['created.gt'] = createdGt;
+            }
+
+            if (createdGte !== undefined) {
+                localVarQueryParameter['created.gte'] = createdGte;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            if (settleAccountId !== undefined) {
+                localVarQueryParameter['settle_account_id'] = settleAccountId;
+            }
+
+            if (royaltySettlementId !== undefined) {
+                localVarQueryParameter['royalty_settlement_id'] = royaltySettlementId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询 Royalty 对象的信息
+         * @summary 查询 Royalty 对象
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceRetrieveRoyalty(id: string, options: any = {}): FetchArgs {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling royaltyServiceRetrieveRoyalty.');
+            }
+            const localVarPath = `/v1/royalties/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 为用户创建一个结算账户。添加结算账户信息后方可对该用进行分账、余额充值、转账等操作。
+         * @summary 创建结算账户
+         * @param {V1CreateSettlementAccountRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceCreateSettlementAccount(body: V1CreateSettlementAccountRequest, options: any = {}): FetchArgs {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling settlementServiceCreateSettlementAccount.');
+            }
+            const localVarPath = `/v1/settlement_accounts`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1CreateSettlementAccountRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 删除结算账户
+         * @summary 删除结算账户
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceDeleteSettlementAccount(id: string, appId?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceDeleteSettlementAccount.');
+            }
+            const localVarPath = `/v1/settlement_accounts/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询结算账户列表
+         * @summary 查询结算账户列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+         * @param {string} [customerId] [OPTIONAL] 客户 ID
+         * @param {string} [businessUserId] [OPTIONAL] 商户用户 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, businessUserId?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/v1/settlement_accounts`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (startingAfter !== undefined) {
+                localVarQueryParameter['starting_after'] = startingAfter;
+            }
+
+            if (endingBefore !== undefined) {
+                localVarQueryParameter['ending_before'] = endingBefore;
+            }
+
+            if (createdLt !== undefined) {
+                localVarQueryParameter['created.lt'] = createdLt;
+            }
+
+            if (createdLte !== undefined) {
+                localVarQueryParameter['created.lte'] = createdLte;
+            }
+
+            if (createdGt !== undefined) {
+                localVarQueryParameter['created.gt'] = createdGt;
+            }
+
+            if (createdGte !== undefined) {
+                localVarQueryParameter['created.gte'] = createdGte;
+            }
+
+            if (disabled !== undefined) {
+                localVarQueryParameter['disabled'] = disabled;
+            }
+
+            if (customerId !== undefined) {
+                localVarQueryParameter['customer_id'] = customerId;
+            }
+
+            if (businessUserId !== undefined) {
+                localVarQueryParameter['business_user_id'] = businessUserId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询结算账户
+         * @summary 查询结算账户
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {string} [object] 对象类型
+         * @param {string} [dataId] 分账接收方的唯一标识
+         * @param {string} [dataAppId] 分账接收方所在的应用 ID
+         * @param {string} [dataBusinessUserId] 分账接收方的用户 ID
+         * @param {string} [dataCustomerId] 分账接收方的用户 ID
+         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT'} [dataChannel] 分账接收方的账户类型
+         * @param {string} [dataRecipientWechatpayAccount] openid 或者商户号，由类型决定. 微信支付分账接收方账户，OPENID或者商户号
+         * @param {string} [dataRecipientWechatpayName] 微信支付分账接收方姓名或名称
+         * @param {boolean} [dataRecipientWechatpayForceCheck] 是否强制校验收款人姓名
+         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayType] 微信支付分账接收方类型
+         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayAccountType] 微信支付分账接收方账户类型
+         * @param {string} [dataRecipientWechatpayAppId] 微信支付分账接收方 openid 所对应的服务商公众号 ID
+         * @param {string} [dataRecipientWechatpaySubAppId] 微信支付分账接收方 openid 所对应的商户公众号 ID
+         * @param {string} [dataRecipientPaymentAlipayAccount] 支付宝账号，账号ID或者登录邮箱
+         * @param {string} [dataRecipientPaymentAlipayName] 支付宝账号真实姓名
+         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientPaymentAlipayType] 支付宝账号类型
+         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientPaymentAlipayAccountType] 支付宝账号类型
+         * @param {string} [dataRecipientBankAccount] 银行卡号
+         * @param {string} [dataRecipientBankName] 银行卡开户名
+         * @param {string} [dataRecipientBankType] 银行卡类型
+         * @param {string} [dataRecipientBankBankName] 银行卡开户行编码
+         * @param {string} [dataRecipientBankBankBranch] 银行卡开户支行
+         * @param {string} [dataRecipientBankBankProvince] 银行卡开户省份
+         * @param {string} [dataRecipientBankBankCity] 银行卡开户城市
+         * @param {string} [dataRecipientYsepayMerchantDivisionMerUsercode] 银盛商户号
+         * @param {number} [dataCreated] 分账接收方的创建时间
+         * @param {number} [dataUpdated] 分账接收方的更新时间
+         * @param {string} [dataObject] 对象类型
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataBusinessUserId?: string, dataCustomerId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT', dataRecipientWechatpayAccount?: string, dataRecipientWechatpayName?: string, dataRecipientWechatpayForceCheck?: boolean, dataRecipientWechatpayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayAppId?: string, dataRecipientWechatpaySubAppId?: string, dataRecipientPaymentAlipayAccount?: string, dataRecipientPaymentAlipayName?: string, dataRecipientPaymentAlipayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientPaymentAlipayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankAccount?: string, dataRecipientBankName?: string, dataRecipientBankType?: string, dataRecipientBankBankName?: string, dataRecipientBankBankBranch?: string, dataRecipientBankBankProvince?: string, dataRecipientBankBankCity?: string, dataRecipientYsepayMerchantDivisionMerUsercode?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceRetrieveSettlementAccount.');
+            }
+            const localVarPath = `/v1/settlement_accounts/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            if (object !== undefined) {
+                localVarQueryParameter['object'] = object;
+            }
+
+            if (dataId !== undefined) {
+                localVarQueryParameter['data.id'] = dataId;
+            }
+
+            if (dataAppId !== undefined) {
+                localVarQueryParameter['data.app_id'] = dataAppId;
+            }
+
+            if (dataBusinessUserId !== undefined) {
+                localVarQueryParameter['data.business_user_id'] = dataBusinessUserId;
+            }
+
+            if (dataCustomerId !== undefined) {
+                localVarQueryParameter['data.customer_id'] = dataCustomerId;
+            }
+
+            if (dataChannel !== undefined) {
+                localVarQueryParameter['data.channel'] = dataChannel;
+            }
+
+            if (dataRecipientWechatpayAccount !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.account'] = dataRecipientWechatpayAccount;
+            }
+
+            if (dataRecipientWechatpayName !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.name'] = dataRecipientWechatpayName;
+            }
+
+            if (dataRecipientWechatpayForceCheck !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.force_check'] = dataRecipientWechatpayForceCheck;
+            }
+
+            if (dataRecipientWechatpayType !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.type'] = dataRecipientWechatpayType;
+            }
+
+            if (dataRecipientWechatpayAccountType !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.account_type'] = dataRecipientWechatpayAccountType;
+            }
+
+            if (dataRecipientWechatpayAppId !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.app_id'] = dataRecipientWechatpayAppId;
+            }
+
+            if (dataRecipientWechatpaySubAppId !== undefined) {
+                localVarQueryParameter['data.recipient.wechatpay.sub_app_id'] = dataRecipientWechatpaySubAppId;
+            }
+
+            if (dataRecipientPaymentAlipayAccount !== undefined) {
+                localVarQueryParameter['data.recipient.payment_alipay.account'] = dataRecipientPaymentAlipayAccount;
+            }
+
+            if (dataRecipientPaymentAlipayName !== undefined) {
+                localVarQueryParameter['data.recipient.payment_alipay.name'] = dataRecipientPaymentAlipayName;
+            }
+
+            if (dataRecipientPaymentAlipayType !== undefined) {
+                localVarQueryParameter['data.recipient.payment_alipay.type'] = dataRecipientPaymentAlipayType;
+            }
+
+            if (dataRecipientPaymentAlipayAccountType !== undefined) {
+                localVarQueryParameter['data.recipient.payment_alipay.account_type'] = dataRecipientPaymentAlipayAccountType;
+            }
+
+            if (dataRecipientBankAccount !== undefined) {
+                localVarQueryParameter['data.recipient.bank.account'] = dataRecipientBankAccount;
+            }
+
+            if (dataRecipientBankName !== undefined) {
+                localVarQueryParameter['data.recipient.bank.name'] = dataRecipientBankName;
+            }
+
+            if (dataRecipientBankType !== undefined) {
+                localVarQueryParameter['data.recipient.bank.type'] = dataRecipientBankType;
+            }
+
+            if (dataRecipientBankBankName !== undefined) {
+                localVarQueryParameter['data.recipient.bank.bank_name'] = dataRecipientBankBankName;
+            }
+
+            if (dataRecipientBankBankBranch !== undefined) {
+                localVarQueryParameter['data.recipient.bank.bank_branch'] = dataRecipientBankBankBranch;
+            }
+
+            if (dataRecipientBankBankProvince !== undefined) {
+                localVarQueryParameter['data.recipient.bank.bank_province'] = dataRecipientBankBankProvince;
+            }
+
+            if (dataRecipientBankBankCity !== undefined) {
+                localVarQueryParameter['data.recipient.bank.bank_city'] = dataRecipientBankBankCity;
+            }
+
+            if (dataRecipientYsepayMerchantDivisionMerUsercode !== undefined) {
+                localVarQueryParameter['data.recipient.ysepay_merchant.division_mer_usercode'] = dataRecipientYsepayMerchantDivisionMerUsercode;
+            }
+
+            if (dataCreated !== undefined) {
+                localVarQueryParameter['data.created'] = dataCreated;
+            }
+
+            if (dataUpdated !== undefined) {
+                localVarQueryParameter['data.updated'] = dataUpdated;
+            }
+
+            if (dataObject !== undefined) {
+                localVarQueryParameter['data.object'] = dataObject;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 查询结算账户列表
+         * @summary 查询结算账户列表
+         * @param {string} [userId] 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/v1/settlement_accounts/search`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 更新结算账户
+         * @summary 更新结算账户
+         * @param {string} settlementAccountId 
+         * @param {V1UpdateAndPatchRequestBody} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceUpdateSettlementAccount(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'settlementAccountId' is not null or undefined
+            if (settlementAccountId === null || settlementAccountId === undefined) {
+                throw new RequiredError('settlementAccountId','Required parameter settlementAccountId was null or undefined when calling settlementServiceUpdateSettlementAccount.');
+            }
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling settlementServiceUpdateSettlementAccount.');
+            }
+            const localVarPath = `/v1/settlement_accounts/{settlementAccount.id}`
+                .replace(`{${"settlementAccount.id"}}`, encodeURIComponent(String(settlementAccountId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (updateMask !== undefined) {
+                localVarQueryParameter['updateMask'] = updateMask;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1UpdateAndPatchRequestBody" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 更新结算账户
+         * @summary 更新结算账户
+         * @param {string} settlementAccountId 
+         * @param {V1UpdateAndPatchRequestBody} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceUpdateSettlementAccount2(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'settlementAccountId' is not null or undefined
+            if (settlementAccountId === null || settlementAccountId === undefined) {
+                throw new RequiredError('settlementAccountId','Required parameter settlementAccountId was null or undefined when calling settlementServiceUpdateSettlementAccount2.');
+            }
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling settlementServiceUpdateSettlementAccount2.');
+            }
+            const localVarPath = `/v1/settlement_accounts/{settlementAccount.id}`
+                .replace(`{${"settlementAccount.id"}}`, encodeURIComponent(String(settlementAccountId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PATCH' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (updateMask !== undefined) {
+                localVarQueryParameter['updateMask'] = updateMask;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"V1UpdateAndPatchRequestBody" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -5869,9 +7357,171 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
 export const DefaultApiFp = function(configuration?: Configuration) {
     return {
         /**
+         * 创建 Business User 对象。商业用户是本系统中的一种账户类型，在交易完成之后可以对该类型的账户进行分账等操作。
+         * @summary 创建 Business User 对象
+         * @param {V1CreateUserRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceCreateUser(body: V1CreateUserRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceCreateUser(body, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 删除 Business User 对象
+         * @summary 删除 Business User 对象
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceDeleteUser(id: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1DeleteUserResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceDeleteUser(id, appId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询 Business User 对象列表
+         * @summary 查询 Business User 对象列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserListResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceListAllUsers(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询 Business User 对象
+         * @summary 查询 Business User 对象
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceRetrieveUser(id: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceRetrieveUser(id, appId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询 Business User 对象列表
+         * @summary 查询 Business User 对象列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
+         * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
+         * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserListResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceSearchUsers(appId, limit, createdLt, createdLte, createdGt, createdGte, email, name, phone, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 更新 Business User 对象
+         * @summary 更新 Business User 对象
+         * @param {string} userId 
+         * @param {V1BusinessUser} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceUpdateUser(userId: string, body: V1BusinessUser, updateMask?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceUpdateUser(userId, body, updateMask, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 更新 Business User 对象
+         * @summary 更新 Business User 对象
+         * @param {string} userId 
+         * @param {V1BusinessUser} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceUpdateUser2(userId: string, body: V1BusinessUser, updateMask?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).businessUserServiceUpdateUser2(userId, body, updateMask, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
          * @summary 创建 Charge 对象
-         * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+         * @param {V1CreateChargeRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5891,7 +7541,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         /**
          * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
          * @summary 创建 Charge 对象
-         * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+         * @param {V1CreateChargeRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5962,7 +7612,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -5971,7 +7621,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
+        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
             let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryChargeList(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -5996,7 +7646,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6005,7 +7655,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
+        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
             let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryChargeList2(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -6022,12 +7672,11 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
          * @summary 撤销 Charge 对象
          * @param {string} chargeId Charge 对象 id
-         * @param {string} [appId] [REQUIRED] 应用 id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceReverseCharge(chargeId: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
-            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceReverseCharge(chargeId, appId, options);
+        chargeServiceReverseCharge(chargeId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceReverseCharge(chargeId, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -6043,12 +7692,11 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
          * @summary 撤销 Charge 对象
          * @param {string} chargeId Charge 对象 id
-         * @param {string} [appId] [REQUIRED] 应用 id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceReverseCharge2(chargeId: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
-            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceReverseCharge2(chargeId, appId, options);
+        chargeServiceReverseCharge2(chargeId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceReverseCharge2(chargeId, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -6155,7 +7803,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         /**
          * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
          * @summary 创建 Refund 对象
-         * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+         * @param {V1CreateRefundRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6175,12 +7823,267 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         /**
          * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
          * @summary 创建 Refund 对象
-         * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+         * @param {V1CreateRefundRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         refundServiceRefunds2(body: V1CreateRefundRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1RefundResponse> {
             let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).refundServiceRefunds2(body, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 对一个 Charge 对象进行分账，分账的金额和分账接收方由 Royalty 对象指定。Royalty 创建仅代表本系统成功接收分账申请，尚未提交到支付机构清分，更不代表分账立即成功，相关结果信息请调用查询接口确认
+         * @summary 创建 Royalty 对象
+         * @param {V1CreateRoyaltyRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1RoyaltyResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).royaltyServiceCreateRoyalty(body, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询 Royalty 对象的列表信息
+         * @summary 查询 Royalty 对象列表
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {string} [merchantTradeId] [OPTIONAL] 客户系统订单号
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {string} [appId] 
+         * @param {string} [settleAccountId] 
+         * @param {string} [royaltySettlementId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceListAllRoyalties(limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, appId?: string, settleAccountId?: string, royaltySettlementId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ListAllRoyaltiesResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).royaltyServiceListAllRoyalties(limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, appId, settleAccountId, royaltySettlementId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询 Royalty 对象的信息
+         * @summary 查询 Royalty 对象
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceRetrieveRoyalty(id: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1RoyaltyResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).royaltyServiceRetrieveRoyalty(id, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 为用户创建一个结算账户。添加结算账户信息后方可对该用进行分账、余额充值、转账等操作。
+         * @summary 创建结算账户
+         * @param {V1CreateSettlementAccountRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceCreateSettlementAccount(body: V1CreateSettlementAccountRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceCreateSettlementAccount(body, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 删除结算账户
+         * @summary 删除结算账户
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceDeleteSettlementAccount(id: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1DeleteSettlementAccountResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceDeleteSettlementAccount(id, appId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询结算账户列表
+         * @summary 查询结算账户列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+         * @param {string} [customerId] [OPTIONAL] 客户 ID
+         * @param {string} [businessUserId] [OPTIONAL] 商户用户 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, businessUserId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountListResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceListAllSettlementAccounts(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, customerId, businessUserId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询结算账户
+         * @summary 查询结算账户
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {string} [object] 对象类型
+         * @param {string} [dataId] 分账接收方的唯一标识
+         * @param {string} [dataAppId] 分账接收方所在的应用 ID
+         * @param {string} [dataBusinessUserId] 分账接收方的用户 ID
+         * @param {string} [dataCustomerId] 分账接收方的用户 ID
+         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT'} [dataChannel] 分账接收方的账户类型
+         * @param {string} [dataRecipientWechatpayAccount] openid 或者商户号，由类型决定. 微信支付分账接收方账户，OPENID或者商户号
+         * @param {string} [dataRecipientWechatpayName] 微信支付分账接收方姓名或名称
+         * @param {boolean} [dataRecipientWechatpayForceCheck] 是否强制校验收款人姓名
+         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayType] 微信支付分账接收方类型
+         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayAccountType] 微信支付分账接收方账户类型
+         * @param {string} [dataRecipientWechatpayAppId] 微信支付分账接收方 openid 所对应的服务商公众号 ID
+         * @param {string} [dataRecipientWechatpaySubAppId] 微信支付分账接收方 openid 所对应的商户公众号 ID
+         * @param {string} [dataRecipientPaymentAlipayAccount] 支付宝账号，账号ID或者登录邮箱
+         * @param {string} [dataRecipientPaymentAlipayName] 支付宝账号真实姓名
+         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientPaymentAlipayType] 支付宝账号类型
+         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientPaymentAlipayAccountType] 支付宝账号类型
+         * @param {string} [dataRecipientBankAccount] 银行卡号
+         * @param {string} [dataRecipientBankName] 银行卡开户名
+         * @param {string} [dataRecipientBankType] 银行卡类型
+         * @param {string} [dataRecipientBankBankName] 银行卡开户行编码
+         * @param {string} [dataRecipientBankBankBranch] 银行卡开户支行
+         * @param {string} [dataRecipientBankBankProvince] 银行卡开户省份
+         * @param {string} [dataRecipientBankBankCity] 银行卡开户城市
+         * @param {string} [dataRecipientYsepayMerchantDivisionMerUsercode] 银盛商户号
+         * @param {number} [dataCreated] 分账接收方的创建时间
+         * @param {number} [dataUpdated] 分账接收方的更新时间
+         * @param {string} [dataObject] 对象类型
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataBusinessUserId?: string, dataCustomerId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT', dataRecipientWechatpayAccount?: string, dataRecipientWechatpayName?: string, dataRecipientWechatpayForceCheck?: boolean, dataRecipientWechatpayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayAppId?: string, dataRecipientWechatpaySubAppId?: string, dataRecipientPaymentAlipayAccount?: string, dataRecipientPaymentAlipayName?: string, dataRecipientPaymentAlipayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientPaymentAlipayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankAccount?: string, dataRecipientBankName?: string, dataRecipientBankType?: string, dataRecipientBankBankName?: string, dataRecipientBankBankBranch?: string, dataRecipientBankBankProvince?: string, dataRecipientBankBankCity?: string, dataRecipientYsepayMerchantDivisionMerUsercode?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataBusinessUserId, dataCustomerId, dataChannel, dataRecipientWechatpayAccount, dataRecipientWechatpayName, dataRecipientWechatpayForceCheck, dataRecipientWechatpayType, dataRecipientWechatpayAccountType, dataRecipientWechatpayAppId, dataRecipientWechatpaySubAppId, dataRecipientPaymentAlipayAccount, dataRecipientPaymentAlipayName, dataRecipientPaymentAlipayType, dataRecipientPaymentAlipayAccountType, dataRecipientBankAccount, dataRecipientBankName, dataRecipientBankType, dataRecipientBankBankName, dataRecipientBankBankBranch, dataRecipientBankBankProvince, dataRecipientBankBankCity, dataRecipientYsepayMerchantDivisionMerUsercode, dataCreated, dataUpdated, dataObject, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 查询结算账户列表
+         * @summary 查询结算账户列表
+         * @param {string} [userId] 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountListResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceSearchSettlementAccounts(userId, appId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 更新结算账户
+         * @summary 更新结算账户
+         * @param {string} settlementAccountId 
+         * @param {V1UpdateAndPatchRequestBody} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceUpdateSettlementAccount(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceUpdateSettlementAccount(settlementAccountId, body, updateMask, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 更新结算账户
+         * @summary 更新结算账户
+         * @param {string} settlementAccountId 
+         * @param {V1UpdateAndPatchRequestBody} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceUpdateSettlementAccount2(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).settlementServiceUpdateSettlementAccount2(settlementAccountId, body, updateMask, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -6202,9 +8105,101 @@ export const DefaultApiFp = function(configuration?: Configuration) {
 export const DefaultApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
+         * 创建 Business User 对象。商业用户是本系统中的一种账户类型，在交易完成之后可以对该类型的账户进行分账等操作。
+         * @summary 创建 Business User 对象
+         * @param {V1CreateUserRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceCreateUser(body: V1CreateUserRequest, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceCreateUser(body, options)(fetch, basePath);
+        },
+        /**
+         * 删除 Business User 对象
+         * @summary 删除 Business User 对象
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceDeleteUser(id: string, appId?: string, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceDeleteUser(id, appId, options)(fetch, basePath);
+        },
+        /**
+         * 查询 Business User 对象列表
+         * @summary 查询 Business User 对象列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceListAllUsers(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, options)(fetch, basePath);
+        },
+        /**
+         * 查询 Business User 对象
+         * @summary 查询 Business User 对象
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceRetrieveUser(id: string, appId?: string, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceRetrieveUser(id, appId, options)(fetch, basePath);
+        },
+        /**
+         * 查询 Business User 对象列表
+         * @summary 查询 Business User 对象列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+         * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
+         * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
+         * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceSearchUsers(appId, limit, createdLt, createdLte, createdGt, createdGte, email, name, phone, options)(fetch, basePath);
+        },
+        /**
+         * 更新 Business User 对象
+         * @summary 更新 Business User 对象
+         * @param {string} userId 
+         * @param {V1BusinessUser} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceUpdateUser(userId: string, body: V1BusinessUser, updateMask?: string, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceUpdateUser(userId, body, updateMask, options)(fetch, basePath);
+        },
+        /**
+         * 更新 Business User 对象
+         * @summary 更新 Business User 对象
+         * @param {string} userId 
+         * @param {V1BusinessUser} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        businessUserServiceUpdateUser2(userId: string, body: V1BusinessUser, updateMask?: string, options?: any) {
+            return DefaultApiFp(configuration).businessUserServiceUpdateUser2(userId, body, updateMask, options)(fetch, basePath);
+        },
+        /**
          * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
          * @summary 创建 Charge 对象
-         * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+         * @param {V1CreateChargeRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6214,7 +8209,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
          * @summary 创建 Charge 对象
-         * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+         * @param {V1CreateChargeRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6255,7 +8250,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6264,7 +8259,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
             return DefaultApiFp(configuration).chargeServiceQueryChargeList(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(fetch, basePath);
         },
         /**
@@ -6279,7 +8274,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6288,30 +8283,28 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
             return DefaultApiFp(configuration).chargeServiceQueryChargeList2(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(fetch, basePath);
         },
         /**
          * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
          * @summary 撤销 Charge 对象
          * @param {string} chargeId Charge 对象 id
-         * @param {string} [appId] [REQUIRED] 应用 id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceReverseCharge(chargeId: string, appId?: string, options?: any) {
-            return DefaultApiFp(configuration).chargeServiceReverseCharge(chargeId, appId, options)(fetch, basePath);
+        chargeServiceReverseCharge(chargeId: string, options?: any) {
+            return DefaultApiFp(configuration).chargeServiceReverseCharge(chargeId, options)(fetch, basePath);
         },
         /**
          * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
          * @summary 撤销 Charge 对象
          * @param {string} chargeId Charge 对象 id
-         * @param {string} [appId] [REQUIRED] 应用 id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceReverseCharge2(chargeId: string, appId?: string, options?: any) {
-            return DefaultApiFp(configuration).chargeServiceReverseCharge2(chargeId, appId, options)(fetch, basePath);
+        chargeServiceReverseCharge2(chargeId: string, options?: any) {
+            return DefaultApiFp(configuration).chargeServiceReverseCharge2(chargeId, options)(fetch, basePath);
         },
         /**
          * 可以通过 charge 对象的查询接口查询某一个 charge 对象的退款列表，也可以通过 refund 对象的 id 查询一个已创建的 refund 对象。可以在 Webhooks 通知之前，通过查询接口确认退款状态。
@@ -6368,7 +8361,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
          * @summary 创建 Refund 对象
-         * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+         * @param {V1CreateRefundRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6378,12 +8371,167 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
          * @summary 创建 Refund 对象
-         * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+         * @param {V1CreateRefundRequest} body 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         refundServiceRefunds2(body: V1CreateRefundRequest, options?: any) {
             return DefaultApiFp(configuration).refundServiceRefunds2(body, options)(fetch, basePath);
+        },
+        /**
+         * 对一个 Charge 对象进行分账，分账的金额和分账接收方由 Royalty 对象指定。Royalty 创建仅代表本系统成功接收分账申请，尚未提交到支付机构清分，更不代表分账立即成功，相关结果信息请调用查询接口确认
+         * @summary 创建 Royalty 对象
+         * @param {V1CreateRoyaltyRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options?: any) {
+            return DefaultApiFp(configuration).royaltyServiceCreateRoyalty(body, options)(fetch, basePath);
+        },
+        /**
+         * 查询 Royalty 对象的列表信息
+         * @summary 查询 Royalty 对象列表
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {string} [merchantTradeId] [OPTIONAL] 客户系统订单号
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {string} [appId] 
+         * @param {string} [settleAccountId] 
+         * @param {string} [royaltySettlementId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceListAllRoyalties(limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, appId?: string, settleAccountId?: string, royaltySettlementId?: string, options?: any) {
+            return DefaultApiFp(configuration).royaltyServiceListAllRoyalties(limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, appId, settleAccountId, royaltySettlementId, options)(fetch, basePath);
+        },
+        /**
+         * 查询 Royalty 对象的信息
+         * @summary 查询 Royalty 对象
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        royaltyServiceRetrieveRoyalty(id: string, options?: any) {
+            return DefaultApiFp(configuration).royaltyServiceRetrieveRoyalty(id, options)(fetch, basePath);
+        },
+        /**
+         * 为用户创建一个结算账户。添加结算账户信息后方可对该用进行分账、余额充值、转账等操作。
+         * @summary 创建结算账户
+         * @param {V1CreateSettlementAccountRequest} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceCreateSettlementAccount(body: V1CreateSettlementAccountRequest, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceCreateSettlementAccount(body, options)(fetch, basePath);
+        },
+        /**
+         * 删除结算账户
+         * @summary 删除结算账户
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceDeleteSettlementAccount(id: string, appId?: string, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceDeleteSettlementAccount(id, appId, options)(fetch, basePath);
+        },
+        /**
+         * 查询结算账户列表
+         * @summary 查询结算账户列表
+         * @param {string} [appId] 
+         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+         * @param {string} [customerId] [OPTIONAL] 客户 ID
+         * @param {string} [businessUserId] [OPTIONAL] 商户用户 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, businessUserId?: string, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceListAllSettlementAccounts(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, customerId, businessUserId, options)(fetch, basePath);
+        },
+        /**
+         * 查询结算账户
+         * @summary 查询结算账户
+         * @param {string} id 
+         * @param {string} [appId] 
+         * @param {string} [object] 对象类型
+         * @param {string} [dataId] 分账接收方的唯一标识
+         * @param {string} [dataAppId] 分账接收方所在的应用 ID
+         * @param {string} [dataBusinessUserId] 分账接收方的用户 ID
+         * @param {string} [dataCustomerId] 分账接收方的用户 ID
+         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT'} [dataChannel] 分账接收方的账户类型
+         * @param {string} [dataRecipientWechatpayAccount] openid 或者商户号，由类型决定. 微信支付分账接收方账户，OPENID或者商户号
+         * @param {string} [dataRecipientWechatpayName] 微信支付分账接收方姓名或名称
+         * @param {boolean} [dataRecipientWechatpayForceCheck] 是否强制校验收款人姓名
+         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayType] 微信支付分账接收方类型
+         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayAccountType] 微信支付分账接收方账户类型
+         * @param {string} [dataRecipientWechatpayAppId] 微信支付分账接收方 openid 所对应的服务商公众号 ID
+         * @param {string} [dataRecipientWechatpaySubAppId] 微信支付分账接收方 openid 所对应的商户公众号 ID
+         * @param {string} [dataRecipientPaymentAlipayAccount] 支付宝账号，账号ID或者登录邮箱
+         * @param {string} [dataRecipientPaymentAlipayName] 支付宝账号真实姓名
+         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientPaymentAlipayType] 支付宝账号类型
+         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientPaymentAlipayAccountType] 支付宝账号类型
+         * @param {string} [dataRecipientBankAccount] 银行卡号
+         * @param {string} [dataRecipientBankName] 银行卡开户名
+         * @param {string} [dataRecipientBankType] 银行卡类型
+         * @param {string} [dataRecipientBankBankName] 银行卡开户行编码
+         * @param {string} [dataRecipientBankBankBranch] 银行卡开户支行
+         * @param {string} [dataRecipientBankBankProvince] 银行卡开户省份
+         * @param {string} [dataRecipientBankBankCity] 银行卡开户城市
+         * @param {string} [dataRecipientYsepayMerchantDivisionMerUsercode] 银盛商户号
+         * @param {number} [dataCreated] 分账接收方的创建时间
+         * @param {number} [dataUpdated] 分账接收方的更新时间
+         * @param {string} [dataObject] 对象类型
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataBusinessUserId?: string, dataCustomerId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT', dataRecipientWechatpayAccount?: string, dataRecipientWechatpayName?: string, dataRecipientWechatpayForceCheck?: boolean, dataRecipientWechatpayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayAppId?: string, dataRecipientWechatpaySubAppId?: string, dataRecipientPaymentAlipayAccount?: string, dataRecipientPaymentAlipayName?: string, dataRecipientPaymentAlipayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientPaymentAlipayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankAccount?: string, dataRecipientBankName?: string, dataRecipientBankType?: string, dataRecipientBankBankName?: string, dataRecipientBankBankBranch?: string, dataRecipientBankBankProvince?: string, dataRecipientBankBankCity?: string, dataRecipientYsepayMerchantDivisionMerUsercode?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataBusinessUserId, dataCustomerId, dataChannel, dataRecipientWechatpayAccount, dataRecipientWechatpayName, dataRecipientWechatpayForceCheck, dataRecipientWechatpayType, dataRecipientWechatpayAccountType, dataRecipientWechatpayAppId, dataRecipientWechatpaySubAppId, dataRecipientPaymentAlipayAccount, dataRecipientPaymentAlipayName, dataRecipientPaymentAlipayType, dataRecipientPaymentAlipayAccountType, dataRecipientBankAccount, dataRecipientBankName, dataRecipientBankType, dataRecipientBankBankName, dataRecipientBankBankBranch, dataRecipientBankBankProvince, dataRecipientBankBankCity, dataRecipientYsepayMerchantDivisionMerUsercode, dataCreated, dataUpdated, dataObject, options)(fetch, basePath);
+        },
+        /**
+         * 查询结算账户列表
+         * @summary 查询结算账户列表
+         * @param {string} [userId] 
+         * @param {string} [appId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceSearchSettlementAccounts(userId, appId, options)(fetch, basePath);
+        },
+        /**
+         * 更新结算账户
+         * @summary 更新结算账户
+         * @param {string} settlementAccountId 
+         * @param {V1UpdateAndPatchRequestBody} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceUpdateSettlementAccount(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceUpdateSettlementAccount(settlementAccountId, body, updateMask, options)(fetch, basePath);
+        },
+        /**
+         * 更新结算账户
+         * @summary 更新结算账户
+         * @param {string} settlementAccountId 
+         * @param {V1UpdateAndPatchRequestBody} body 
+         * @param {string} [updateMask] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        settlementServiceUpdateSettlementAccount2(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options?: any) {
+            return DefaultApiFp(configuration).settlementServiceUpdateSettlementAccount2(settlementAccountId, body, updateMask, options)(fetch, basePath);
         },
     };
 };
@@ -6396,9 +8544,115 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
  */
 export class DefaultApi extends BaseAPI {
     /**
+     * 创建 Business User 对象。商业用户是本系统中的一种账户类型，在交易完成之后可以对该类型的账户进行分账等操作。
+     * @summary 创建 Business User 对象
+     * @param {V1CreateUserRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceCreateUser(body: V1CreateUserRequest, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceCreateUser(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 删除 Business User 对象
+     * @summary 删除 Business User 对象
+     * @param {string} id 
+     * @param {string} [appId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceDeleteUser(id: string, appId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceDeleteUser(id, appId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 查询 Business User 对象列表
+     * @summary 查询 Business User 对象列表
+     * @param {string} [appId] 
+     * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+     * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+     * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+     * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceListAllUsers(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 查询 Business User 对象
+     * @summary 查询 Business User 对象
+     * @param {string} id 
+     * @param {string} [appId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceRetrieveUser(id: string, appId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceRetrieveUser(id, appId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 查询 Business User 对象列表
+     * @summary 查询 Business User 对象列表
+     * @param {string} [appId] 
+     * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+     * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
+     * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
+     * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
+     * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceSearchUsers(appId, limit, createdLt, createdLte, createdGt, createdGte, email, name, phone, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 更新 Business User 对象
+     * @summary 更新 Business User 对象
+     * @param {string} userId 
+     * @param {V1BusinessUser} body 
+     * @param {string} [updateMask] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceUpdateUser(userId: string, body: V1BusinessUser, updateMask?: string, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceUpdateUser(userId, body, updateMask, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 更新 Business User 对象
+     * @summary 更新 Business User 对象
+     * @param {string} userId 
+     * @param {V1BusinessUser} body 
+     * @param {string} [updateMask] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public businessUserServiceUpdateUser2(userId: string, body: V1BusinessUser, updateMask?: string, options?: any) {
+        return DefaultApiFp(this.configuration).businessUserServiceUpdateUser2(userId, body, updateMask, options)(this.fetch, this.basePath);
+    }
+
+    /**
      * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
      * @summary 创建 Charge 对象
-     * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+     * @param {V1CreateChargeRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
@@ -6410,7 +8664,7 @@ export class DefaultApi extends BaseAPI {
     /**
      * 发起一次支付请求时需要创建一个新的 charge 对象，获取一个可用的支付凭据用于客户端向第三方渠道发起支付请求。如果使用测试模式的 API Key，则不会发生真实交易。当支付成功后，会发送 Webhooks 通知。
      * @summary 创建 Charge 对象
-     * @param {V1CreateChargeRequest} body 你可以创建一个 charge 对象向用户收款。charge 是一个支付凭据对象，所有和支付相关的要素信息都存储在这个对象中，你的服务端可以通过发起支付请求来创建一个新的 charge 对象，也可以随时查询一个或者多个 charge 对象的状态。每个 charge 对象都拥有一个标识 id，该 id 在系统内唯一。
+     * @param {V1CreateChargeRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
@@ -6457,7 +8711,7 @@ export class DefaultApi extends BaseAPI {
      * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
      * @param {boolean} [paid] [OPTIONAL] 是否已付款
      * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
      * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6467,7 +8721,7 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+    public chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
         return DefaultApiFp(this.configuration).chargeServiceQueryChargeList(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(this.fetch, this.basePath);
     }
 
@@ -6483,7 +8737,7 @@ export class DefaultApi extends BaseAPI {
      * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付
+     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
      * @param {boolean} [paid] [OPTIONAL] 是否已付款
      * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
      * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6493,7 +8747,7 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+    public chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
         return DefaultApiFp(this.configuration).chargeServiceQueryChargeList2(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(this.fetch, this.basePath);
     }
 
@@ -6501,26 +8755,24 @@ export class DefaultApi extends BaseAPI {
      * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
      * @summary 撤销 Charge 对象
      * @param {string} chargeId Charge 对象 id
-     * @param {string} [appId] [REQUIRED] 应用 id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceReverseCharge(chargeId: string, appId?: string, options?: any) {
-        return DefaultApiFp(this.configuration).chargeServiceReverseCharge(chargeId, appId, options)(this.fetch, this.basePath);
+    public chargeServiceReverseCharge(chargeId: string, options?: any) {
+        return DefaultApiFp(this.configuration).chargeServiceReverseCharge(chargeId, options)(this.fetch, this.basePath);
     }
 
     /**
      * 针对已经创建的 Charge，你可以调用撤销接口进行交易的关闭。接口支持对于未成功付款的订单进行撤销，则关闭交易。调用此接口后用户后期不能支付成功。  注：撤销订单在不同收单机构会有不同的行为。对于成功付款的订单请使用 退款 接口进行退款处理。只有针对未支付的订单，我们建议你调用撤销接口。  - 微信支付：如果此订单用户支付失败，微信支付系统会将此订单关闭；如果用户支付成功，微信支付系统会将此订单资金退还给用户。(7天以内的交易单可调用撤销) - 支付宝：如果此订单用户支付失败，支付宝系统会将此订单关闭；如果用户支付成功，支付宝系统会将此订单资金退还给用户。
      * @summary 撤销 Charge 对象
      * @param {string} chargeId Charge 对象 id
-     * @param {string} [appId] [REQUIRED] 应用 id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceReverseCharge2(chargeId: string, appId?: string, options?: any) {
-        return DefaultApiFp(this.configuration).chargeServiceReverseCharge2(chargeId, appId, options)(this.fetch, this.basePath);
+    public chargeServiceReverseCharge2(chargeId: string, options?: any) {
+        return DefaultApiFp(this.configuration).chargeServiceReverseCharge2(chargeId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -6586,7 +8838,7 @@ export class DefaultApi extends BaseAPI {
     /**
      * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
      * @summary 创建 Refund 对象
-     * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+     * @param {V1CreateRefundRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
@@ -6598,7 +8850,7 @@ export class DefaultApi extends BaseAPI {
     /**
      * 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
      * @summary 创建 Refund 对象
-     * @param {V1CreateRefundRequest} body 通过发起一次退款请求创建一个新的 refund 对象，只能对已经发生交易并且没有全额退款的 charge 对象发起退款。当进行全额退款之前，可以进行多次退款，直至全额退款。当一次退款成功后，会发送 Webhooks 通知。
+     * @param {V1CreateRefundRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
@@ -6607,676 +8859,80 @@ export class DefaultApi extends BaseAPI {
         return DefaultApiFp(this.configuration).refundServiceRefunds2(body, options)(this.fetch, this.basePath);
     }
 
-}
-
-/**
- * BusinessUserServiceApi - fetch parameter creator
- * @export
- */
-export const BusinessUserServiceApiFetchParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 创建 BusinessUser 对象
-         * @param {V1CreateUserRequest} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceCreateUser(body: V1CreateUserRequest, options: any = {}): FetchArgs {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling businessUserServiceCreateUser.');
-            }
-            const localVarPath = `/v1/business_users`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"V1CreateUserRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 删除 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceDeleteUser(id: string, appId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling businessUserServiceDeleteUser.');
-            }
-            const localVarPath = `/v1/business_users/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 查询 BusinessUser 对象列表
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options: any = {}): FetchArgs {
-            const localVarPath = `/v1/business_users`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (startingAfter !== undefined) {
-                localVarQueryParameter['starting_after'] = startingAfter;
-            }
-
-            if (endingBefore !== undefined) {
-                localVarQueryParameter['ending_before'] = endingBefore;
-            }
-
-            if (createdLt !== undefined) {
-                localVarQueryParameter['created.lt'] = createdLt;
-            }
-
-            if (createdLte !== undefined) {
-                localVarQueryParameter['created.lte'] = createdLte;
-            }
-
-            if (createdGt !== undefined) {
-                localVarQueryParameter['created.gt'] = createdGt;
-            }
-
-            if (createdGte !== undefined) {
-                localVarQueryParameter['created.gte'] = createdGte;
-            }
-
-            if (disabled !== undefined) {
-                localVarQueryParameter['disabled'] = disabled;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 查询 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceRetrieveUser(id: string, appId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling businessUserServiceRetrieveUser.');
-            }
-            const localVarPath = `/v1/business_users/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 搜索 BusinessUser 对象
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
-         * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
-         * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/v1/business_users/search`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (createdLt !== undefined) {
-                localVarQueryParameter['created.lt'] = createdLt;
-            }
-
-            if (createdLte !== undefined) {
-                localVarQueryParameter['created.lte'] = createdLte;
-            }
-
-            if (createdGt !== undefined) {
-                localVarQueryParameter['created.gt'] = createdGt;
-            }
-
-            if (createdGte !== undefined) {
-                localVarQueryParameter['created.gte'] = createdGte;
-            }
-
-            if (email !== undefined) {
-                localVarQueryParameter['email'] = email;
-            }
-
-            if (name !== undefined) {
-                localVarQueryParameter['name'] = name;
-            }
-
-            if (phone !== undefined) {
-                localVarQueryParameter['phone'] = phone;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 更新 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [address] 
-         * @param {string} [currency] 
-         * @param {string} [description] 
-         * @param {string} [email] 
-         * @param {string} [name] 
-         * @param {string} [phone] 
-         * @param {string} [avatar] 
-         * @param {boolean} [disabled] 
-         * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-         * @param {string} [parentUserId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceUpdateUser(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentUserId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling businessUserServiceUpdateUser.');
-            }
-            const localVarPath = `/v1/business_users/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (address !== undefined) {
-                localVarQueryParameter['address'] = address;
-            }
-
-            if (currency !== undefined) {
-                localVarQueryParameter['currency'] = currency;
-            }
-
-            if (description !== undefined) {
-                localVarQueryParameter['description'] = description;
-            }
-
-            if (email !== undefined) {
-                localVarQueryParameter['email'] = email;
-            }
-
-            if (name !== undefined) {
-                localVarQueryParameter['name'] = name;
-            }
-
-            if (phone !== undefined) {
-                localVarQueryParameter['phone'] = phone;
-            }
-
-            if (avatar !== undefined) {
-                localVarQueryParameter['avatar'] = avatar;
-            }
-
-            if (disabled !== undefined) {
-                localVarQueryParameter['disabled'] = disabled;
-            }
-
-            if (gender !== undefined) {
-                localVarQueryParameter['gender'] = gender;
-            }
-
-            if (parentUserId !== undefined) {
-                localVarQueryParameter['parent_user_id'] = parentUserId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * BusinessUserServiceApi - functional programming interface
- * @export
- */
-export const BusinessUserServiceApiFp = function(configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 创建 BusinessUser 对象
-         * @param {V1CreateUserRequest} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceCreateUser(body: V1CreateUserRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
-            let localVarFetchArgs = BusinessUserServiceApiFetchParamCreator(configuration).businessUserServiceCreateUser(body, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 删除 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceDeleteUser(id: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1DeleteUserResponse> {
-            let localVarFetchArgs = BusinessUserServiceApiFetchParamCreator(configuration).businessUserServiceDeleteUser(id, appId, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 查询 BusinessUser 对象列表
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserListResponse> {
-            let localVarFetchArgs = BusinessUserServiceApiFetchParamCreator(configuration).businessUserServiceListAllUsers(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 查询 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceRetrieveUser(id: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
-            let localVarFetchArgs = BusinessUserServiceApiFetchParamCreator(configuration).businessUserServiceRetrieveUser(id, appId, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 搜索 BusinessUser 对象
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
-         * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
-         * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserListResponse> {
-            let localVarFetchArgs = BusinessUserServiceApiFetchParamCreator(configuration).businessUserServiceSearchUsers(appId, limit, createdLt, createdLte, createdGt, createdGte, email, name, phone, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 更新 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [address] 
-         * @param {string} [currency] 
-         * @param {string} [description] 
-         * @param {string} [email] 
-         * @param {string} [name] 
-         * @param {string} [phone] 
-         * @param {string} [avatar] 
-         * @param {boolean} [disabled] 
-         * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-         * @param {string} [parentUserId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceUpdateUser(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentUserId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1UserResponse> {
-            let localVarFetchArgs = BusinessUserServiceApiFetchParamCreator(configuration).businessUserServiceUpdateUser(id, appId, address, currency, description, email, name, phone, avatar, disabled, gender, parentUserId, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-    }
-};
-
-/**
- * BusinessUserServiceApi - factory interface
- * @export
- */
-export const BusinessUserServiceApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-        /**
-         * 
-         * @summary 创建 BusinessUser 对象
-         * @param {V1CreateUserRequest} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceCreateUser(body: V1CreateUserRequest, options?: any) {
-            return BusinessUserServiceApiFp(configuration).businessUserServiceCreateUser(body, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 删除 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceDeleteUser(id: string, appId?: string, options?: any) {
-            return BusinessUserServiceApiFp(configuration).businessUserServiceDeleteUser(id, appId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 查询 BusinessUser 对象列表
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options?: any) {
-            return BusinessUserServiceApiFp(configuration).businessUserServiceListAllUsers(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 查询 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceRetrieveUser(id: string, appId?: string, options?: any) {
-            return BusinessUserServiceApiFp(configuration).businessUserServiceRetrieveUser(id, appId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 搜索 BusinessUser 对象
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-         * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
-         * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
-         * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options?: any) {
-            return BusinessUserServiceApiFp(configuration).businessUserServiceSearchUsers(appId, limit, createdLt, createdLte, createdGt, createdGte, email, name, phone, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 更新 BusinessUser 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [address] 
-         * @param {string} [currency] 
-         * @param {string} [description] 
-         * @param {string} [email] 
-         * @param {string} [name] 
-         * @param {string} [phone] 
-         * @param {string} [avatar] 
-         * @param {boolean} [disabled] 
-         * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-         * @param {string} [parentUserId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        businessUserServiceUpdateUser(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentUserId?: string, options?: any) {
-            return BusinessUserServiceApiFp(configuration).businessUserServiceUpdateUser(id, appId, address, currency, description, email, name, phone, avatar, disabled, gender, parentUserId, options)(fetch, basePath);
-        },
-    };
-};
-
-/**
- * BusinessUserServiceApi - object-oriented interface
- * @export
- * @class BusinessUserServiceApi
- * @extends {BaseAPI}
- */
-export class BusinessUserServiceApi extends BaseAPI {
     /**
-     * 
-     * @summary 创建 BusinessUser 对象
-     * @param {V1CreateUserRequest} body 
+     * 对一个 Charge 对象进行分账，分账的金额和分账接收方由 Royalty 对象指定。Royalty 创建仅代表本系统成功接收分账申请，尚未提交到支付机构清分，更不代表分账立即成功，相关结果信息请调用查询接口确认
+     * @summary 创建 Royalty 对象
+     * @param {V1CreateRoyaltyRequest} body 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof BusinessUserServiceApi
+     * @memberof DefaultApi
      */
-    public businessUserServiceCreateUser(body: V1CreateUserRequest, options?: any) {
-        return BusinessUserServiceApiFp(this.configuration).businessUserServiceCreateUser(body, options)(this.fetch, this.basePath);
+    public royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options?: any) {
+        return DefaultApiFp(this.configuration).royaltyServiceCreateRoyalty(body, options)(this.fetch, this.basePath);
     }
 
     /**
-     * 
-     * @summary 删除 BusinessUser 对象
+     * 查询 Royalty 对象的列表信息
+     * @summary 查询 Royalty 对象列表
+     * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
+     * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
+     * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
+     * @param {string} [merchantTradeId] [OPTIONAL] 客户系统订单号
+     * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
+     * @param {string} [appId] 
+     * @param {string} [settleAccountId] 
+     * @param {string} [royaltySettlementId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public royaltyServiceListAllRoyalties(limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, appId?: string, settleAccountId?: string, royaltySettlementId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).royaltyServiceListAllRoyalties(limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, appId, settleAccountId, royaltySettlementId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 查询 Royalty 对象的信息
+     * @summary 查询 Royalty 对象
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public royaltyServiceRetrieveRoyalty(id: string, options?: any) {
+        return DefaultApiFp(this.configuration).royaltyServiceRetrieveRoyalty(id, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 为用户创建一个结算账户。添加结算账户信息后方可对该用进行分账、余额充值、转账等操作。
+     * @summary 创建结算账户
+     * @param {V1CreateSettlementAccountRequest} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public settlementServiceCreateSettlementAccount(body: V1CreateSettlementAccountRequest, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceCreateSettlementAccount(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 删除结算账户
+     * @summary 删除结算账户
      * @param {string} id 
      * @param {string} [appId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof BusinessUserServiceApi
+     * @memberof DefaultApi
      */
-    public businessUserServiceDeleteUser(id: string, appId?: string, options?: any) {
-        return BusinessUserServiceApiFp(this.configuration).businessUserServiceDeleteUser(id, appId, options)(this.fetch, this.basePath);
+    public settlementServiceDeleteSettlementAccount(id: string, appId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceDeleteSettlementAccount(id, appId, options)(this.fetch, this.basePath);
     }
 
     /**
-     * 
-     * @summary 查询 BusinessUser 对象列表
+     * 查询结算账户列表
+     * @summary 查询结算账户列表
      * @param {string} [appId] 
      * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
      * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
@@ -7286,68 +8942,96 @@ export class BusinessUserServiceApi extends BaseAPI {
      * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
+     * @param {string} [customerId] [OPTIONAL] 客户 ID
+     * @param {string} [businessUserId] [OPTIONAL] 商户用户 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof BusinessUserServiceApi
+     * @memberof DefaultApi
      */
-    public businessUserServiceListAllUsers(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, options?: any) {
-        return BusinessUserServiceApiFp(this.configuration).businessUserServiceListAllUsers(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, options)(this.fetch, this.basePath);
+    public settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, businessUserId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceListAllSettlementAccounts(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, customerId, businessUserId, options)(this.fetch, this.basePath);
     }
 
     /**
-     * 
-     * @summary 查询 BusinessUser 对象
+     * 查询结算账户
+     * @summary 查询结算账户
      * @param {string} id 
      * @param {string} [appId] 
+     * @param {string} [object] 对象类型
+     * @param {string} [dataId] 分账接收方的唯一标识
+     * @param {string} [dataAppId] 分账接收方所在的应用 ID
+     * @param {string} [dataBusinessUserId] 分账接收方的用户 ID
+     * @param {string} [dataCustomerId] 分账接收方的用户 ID
+     * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT'} [dataChannel] 分账接收方的账户类型
+     * @param {string} [dataRecipientWechatpayAccount] openid 或者商户号，由类型决定. 微信支付分账接收方账户，OPENID或者商户号
+     * @param {string} [dataRecipientWechatpayName] 微信支付分账接收方姓名或名称
+     * @param {boolean} [dataRecipientWechatpayForceCheck] 是否强制校验收款人姓名
+     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayType] 微信支付分账接收方类型
+     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayAccountType] 微信支付分账接收方账户类型
+     * @param {string} [dataRecipientWechatpayAppId] 微信支付分账接收方 openid 所对应的服务商公众号 ID
+     * @param {string} [dataRecipientWechatpaySubAppId] 微信支付分账接收方 openid 所对应的商户公众号 ID
+     * @param {string} [dataRecipientPaymentAlipayAccount] 支付宝账号，账号ID或者登录邮箱
+     * @param {string} [dataRecipientPaymentAlipayName] 支付宝账号真实姓名
+     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientPaymentAlipayType] 支付宝账号类型
+     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientPaymentAlipayAccountType] 支付宝账号类型
+     * @param {string} [dataRecipientBankAccount] 银行卡号
+     * @param {string} [dataRecipientBankName] 银行卡开户名
+     * @param {string} [dataRecipientBankType] 银行卡类型
+     * @param {string} [dataRecipientBankBankName] 银行卡开户行编码
+     * @param {string} [dataRecipientBankBankBranch] 银行卡开户支行
+     * @param {string} [dataRecipientBankBankProvince] 银行卡开户省份
+     * @param {string} [dataRecipientBankBankCity] 银行卡开户城市
+     * @param {string} [dataRecipientYsepayMerchantDivisionMerUsercode] 银盛商户号
+     * @param {number} [dataCreated] 分账接收方的创建时间
+     * @param {number} [dataUpdated] 分账接收方的更新时间
+     * @param {string} [dataObject] 对象类型
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof BusinessUserServiceApi
+     * @memberof DefaultApi
      */
-    public businessUserServiceRetrieveUser(id: string, appId?: string, options?: any) {
-        return BusinessUserServiceApiFp(this.configuration).businessUserServiceRetrieveUser(id, appId, options)(this.fetch, this.basePath);
+    public settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataBusinessUserId?: string, dataCustomerId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHATPAY' | 'BANK' | 'BALANCE' | 'YSEPAY_MERCHANT', dataRecipientWechatpayAccount?: string, dataRecipientWechatpayName?: string, dataRecipientWechatpayForceCheck?: boolean, dataRecipientWechatpayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayAppId?: string, dataRecipientWechatpaySubAppId?: string, dataRecipientPaymentAlipayAccount?: string, dataRecipientPaymentAlipayName?: string, dataRecipientPaymentAlipayType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientPaymentAlipayAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankAccount?: string, dataRecipientBankName?: string, dataRecipientBankType?: string, dataRecipientBankBankName?: string, dataRecipientBankBankBranch?: string, dataRecipientBankBankProvince?: string, dataRecipientBankBankCity?: string, dataRecipientYsepayMerchantDivisionMerUsercode?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataBusinessUserId, dataCustomerId, dataChannel, dataRecipientWechatpayAccount, dataRecipientWechatpayName, dataRecipientWechatpayForceCheck, dataRecipientWechatpayType, dataRecipientWechatpayAccountType, dataRecipientWechatpayAppId, dataRecipientWechatpaySubAppId, dataRecipientPaymentAlipayAccount, dataRecipientPaymentAlipayName, dataRecipientPaymentAlipayType, dataRecipientPaymentAlipayAccountType, dataRecipientBankAccount, dataRecipientBankName, dataRecipientBankType, dataRecipientBankBankName, dataRecipientBankBankBranch, dataRecipientBankBankProvince, dataRecipientBankBankCity, dataRecipientYsepayMerchantDivisionMerUsercode, dataCreated, dataUpdated, dataObject, options)(this.fetch, this.basePath);
     }
 
     /**
-     * 
-     * @summary 搜索 BusinessUser 对象
+     * 查询结算账户列表
+     * @summary 查询结算账户列表
+     * @param {string} [userId] 
      * @param {string} [appId] 
-     * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-     * @param {number} [createdLt] 大于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-     * @param {number} [createdLte] 大于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-     * @param {number} [createdGt] 小于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-     * @param {number} [createdGte] 小于或等于 BusinessUser 对象的创建时间，用 Unix 时间戳表示
-     * @param {string} [email] [OPTIONAL] BusinessUser 对象的邮箱地址。支持模糊匹配
-     * @param {string} [name] [OPTIONAL] BusinessUser 对象的用户名。支持模糊匹配
-     * @param {string} [phone] [OPTIONAL] BusinessUser 对象的手机号码
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof BusinessUserServiceApi
+     * @memberof DefaultApi
      */
-    public businessUserServiceSearchUsers(appId?: string, limit?: number, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, email?: string, name?: string, phone?: string, options?: any) {
-        return BusinessUserServiceApiFp(this.configuration).businessUserServiceSearchUsers(appId, limit, createdLt, createdLte, createdGt, createdGte, email, name, phone, options)(this.fetch, this.basePath);
+    public settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceSearchSettlementAccounts(userId, appId, options)(this.fetch, this.basePath);
     }
 
     /**
-     * 
-     * @summary 更新 BusinessUser 对象
-     * @param {string} id 
-     * @param {string} [appId] 
-     * @param {string} [address] 
-     * @param {string} [currency] 
-     * @param {string} [description] 
-     * @param {string} [email] 
-     * @param {string} [name] 
-     * @param {string} [phone] 
-     * @param {string} [avatar] 
-     * @param {boolean} [disabled] 
-     * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-     * @param {string} [parentUserId] 
+     * 更新结算账户
+     * @summary 更新结算账户
+     * @param {string} settlementAccountId 
+     * @param {V1UpdateAndPatchRequestBody} body 
+     * @param {string} [updateMask] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof BusinessUserServiceApi
+     * @memberof DefaultApi
      */
-    public businessUserServiceUpdateUser(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentUserId?: string, options?: any) {
-        return BusinessUserServiceApiFp(this.configuration).businessUserServiceUpdateUser(id, appId, address, currency, description, email, name, phone, avatar, disabled, gender, parentUserId, options)(this.fetch, this.basePath);
+    public settlementServiceUpdateSettlementAccount(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceUpdateSettlementAccount(settlementAccountId, body, updateMask, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 更新结算账户
+     * @summary 更新结算账户
+     * @param {string} settlementAccountId 
+     * @param {V1UpdateAndPatchRequestBody} body 
+     * @param {string} [updateMask] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public settlementServiceUpdateSettlementAccount2(settlementAccountId: string, body: V1UpdateAndPatchRequestBody, updateMask?: string, options?: any) {
+        return DefaultApiFp(this.configuration).settlementServiceUpdateSettlementAccount2(settlementAccountId, body, updateMask, options)(this.fetch, this.basePath);
     }
 
 }
@@ -7750,22 +9434,10 @@ export const CustomerServiceApiFetchParamCreator = function (configuration?: Con
         /**
          * 
          * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [address] 
-         * @param {string} [currency] 
-         * @param {string} [description] 
-         * @param {string} [email] 
-         * @param {string} [name] 
-         * @param {string} [phone] 
-         * @param {string} [avatar] 
-         * @param {boolean} [disabled] 
-         * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-         * @param {string} [parentCustomerId] 
-         * @param {string} [outCustomerId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customerServiceUpdateCustomer(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentCustomerId?: string, outCustomerId?: string, options: any = {}): FetchArgs {
+        customerServiceUpdateCustomer(id: string, options: any = {}): FetchArgs {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
                 throw new RequiredError('id','Required parameter id was null or undefined when calling customerServiceUpdateCustomer.');
@@ -7783,54 +9455,6 @@ export const CustomerServiceApiFetchParamCreator = function (configuration?: Con
 					? configuration.apiKey("X-JUSTAP-API-KEY")
 					: configuration.apiKey;
                 localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (address !== undefined) {
-                localVarQueryParameter['address'] = address;
-            }
-
-            if (currency !== undefined) {
-                localVarQueryParameter['currency'] = currency;
-            }
-
-            if (description !== undefined) {
-                localVarQueryParameter['description'] = description;
-            }
-
-            if (email !== undefined) {
-                localVarQueryParameter['email'] = email;
-            }
-
-            if (name !== undefined) {
-                localVarQueryParameter['name'] = name;
-            }
-
-            if (phone !== undefined) {
-                localVarQueryParameter['phone'] = phone;
-            }
-
-            if (avatar !== undefined) {
-                localVarQueryParameter['avatar'] = avatar;
-            }
-
-            if (disabled !== undefined) {
-                localVarQueryParameter['disabled'] = disabled;
-            }
-
-            if (gender !== undefined) {
-                localVarQueryParameter['gender'] = gender;
-            }
-
-            if (parentCustomerId !== undefined) {
-                localVarQueryParameter['parent_customer_id'] = parentCustomerId;
-            }
-
-            if (outCustomerId !== undefined) {
-                localVarQueryParameter['out_customer_id'] = outCustomerId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -7968,23 +9592,11 @@ export const CustomerServiceApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [address] 
-         * @param {string} [currency] 
-         * @param {string} [description] 
-         * @param {string} [email] 
-         * @param {string} [name] 
-         * @param {string} [phone] 
-         * @param {string} [avatar] 
-         * @param {boolean} [disabled] 
-         * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-         * @param {string} [parentCustomerId] 
-         * @param {string} [outCustomerId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customerServiceUpdateCustomer(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentCustomerId?: string, outCustomerId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1CustomerResponse> {
-            let localVarFetchArgs = CustomerServiceApiFetchParamCreator(configuration).customerServiceUpdateCustomer(id, appId, address, currency, description, email, name, phone, avatar, disabled, gender, parentCustomerId, outCustomerId, options);
+        customerServiceUpdateCustomer(id: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1CustomerResponse> {
+            let localVarFetchArgs = CustomerServiceApiFetchParamCreator(configuration).customerServiceUpdateCustomer(id, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -8071,23 +9683,11 @@ export const CustomerServiceApiFactory = function (configuration?: Configuration
         /**
          * 
          * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [address] 
-         * @param {string} [currency] 
-         * @param {string} [description] 
-         * @param {string} [email] 
-         * @param {string} [name] 
-         * @param {string} [phone] 
-         * @param {string} [avatar] 
-         * @param {boolean} [disabled] 
-         * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-         * @param {string} [parentCustomerId] 
-         * @param {string} [outCustomerId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        customerServiceUpdateCustomer(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentCustomerId?: string, outCustomerId?: string, options?: any) {
-            return CustomerServiceApiFp(configuration).customerServiceUpdateCustomer(id, appId, address, currency, description, email, name, phone, avatar, disabled, gender, parentCustomerId, outCustomerId, options)(fetch, basePath);
+        customerServiceUpdateCustomer(id: string, options?: any) {
+            return CustomerServiceApiFp(configuration).customerServiceUpdateCustomer(id, options)(fetch, basePath);
         },
     };
 };
@@ -8175,1273 +9775,12 @@ export class CustomerServiceApi extends BaseAPI {
     /**
      * 
      * @param {string} id 
-     * @param {string} [appId] 
-     * @param {string} [address] 
-     * @param {string} [currency] 
-     * @param {string} [description] 
-     * @param {string} [email] 
-     * @param {string} [name] 
-     * @param {string} [phone] 
-     * @param {string} [avatar] 
-     * @param {boolean} [disabled] 
-     * @param {'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender'} [gender]  - GENDER_UNKNOWN: 未设置  - MALE: 男  - FE_MALE: 女  - PRIVACY: 保密  - ThirdGender: 第三性别
-     * @param {string} [parentCustomerId] 
-     * @param {string} [outCustomerId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CustomerServiceApi
      */
-    public customerServiceUpdateCustomer(id: string, appId?: string, address?: string, currency?: string, description?: string, email?: string, name?: string, phone?: string, avatar?: string, disabled?: boolean, gender?: 'GENDER_UNKNOWN' | 'MALE' | 'FE_MALE' | 'PRIVACY' | 'ThirdGender', parentCustomerId?: string, outCustomerId?: string, options?: any) {
-        return CustomerServiceApiFp(this.configuration).customerServiceUpdateCustomer(id, appId, address, currency, description, email, name, phone, avatar, disabled, gender, parentCustomerId, outCustomerId, options)(this.fetch, this.basePath);
-    }
-
-}
-
-/**
- * RoyaltyServiceApi - fetch parameter creator
- * @export
- */
-export const RoyaltyServiceApiFetchParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 创建 Royalty 对象
-         * @param {V1CreateRoyaltyRequest} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options: any = {}): FetchArgs {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling royaltyServiceCreateRoyalty.');
-            }
-            const localVarPath = `/v1/royalties`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"V1CreateRoyaltyRequest" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * RoyaltyServiceApi - functional programming interface
- * @export
- */
-export const RoyaltyServiceApiFp = function(configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 创建 Royalty 对象
-         * @param {V1CreateRoyaltyRequest} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1RoyaltyResponse> {
-            let localVarFetchArgs = RoyaltyServiceApiFetchParamCreator(configuration).royaltyServiceCreateRoyalty(body, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-    }
-};
-
-/**
- * RoyaltyServiceApi - factory interface
- * @export
- */
-export const RoyaltyServiceApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-        /**
-         * 
-         * @summary 创建 Royalty 对象
-         * @param {V1CreateRoyaltyRequest} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options?: any) {
-            return RoyaltyServiceApiFp(configuration).royaltyServiceCreateRoyalty(body, options)(fetch, basePath);
-        },
-    };
-};
-
-/**
- * RoyaltyServiceApi - object-oriented interface
- * @export
- * @class RoyaltyServiceApi
- * @extends {BaseAPI}
- */
-export class RoyaltyServiceApi extends BaseAPI {
-    /**
-     * 
-     * @summary 创建 Royalty 对象
-     * @param {V1CreateRoyaltyRequest} body 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof RoyaltyServiceApi
-     */
-    public royaltyServiceCreateRoyalty(body: V1CreateRoyaltyRequest, options?: any) {
-        return RoyaltyServiceApiFp(this.configuration).royaltyServiceCreateRoyalty(body, options)(this.fetch, this.basePath);
-    }
-
-}
-
-/**
- * SettlementServiceApi - fetch parameter creator
- * @export
- */
-export const SettlementServiceApiFetchParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 创建 SettlementAccount 对象
-         * @param {string} [appId] 
-         * @param {string} [userId] 
-         * @param {string} [customerId] 
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/v1/settlement_accounts`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-            if (customerId !== undefined) {
-                localVarQueryParameter['customer_id'] = customerId;
-            }
-
-            if (channel !== undefined) {
-                localVarQueryParameter['channel'] = channel;
-            }
-
-            if (recipientWechatpayChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.account'] = recipientWechatpayChannelRecipientAccount;
-            }
-
-            if (recipientWechatpayChannelRecipientName !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.name'] = recipientWechatpayChannelRecipientName;
-            }
-
-            if (recipientWechatpayChannelRecipientForceCheck !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.force_check'] = recipientWechatpayChannelRecipientForceCheck;
-            }
-
-            if (recipientWechatpayChannelRecipientType !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.type'] = recipientWechatpayChannelRecipientType;
-            }
-
-            if (recipientWechatpayChannelRecipientAccountType !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.account_type'] = recipientWechatpayChannelRecipientAccountType;
-            }
-
-            if (recipientWechatpayChannelRecipientAppId !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.app_id'] = recipientWechatpayChannelRecipientAppId;
-            }
-
-            if (recipientAlipayChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.account'] = recipientAlipayChannelRecipientAccount;
-            }
-
-            if (recipientAlipayChannelRecipientName !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.name'] = recipientAlipayChannelRecipientName;
-            }
-
-            if (recipientAlipayChannelRecipientType !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.type'] = recipientAlipayChannelRecipientType;
-            }
-
-            if (recipientAlipayChannelRecipientAccountType !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.account_type'] = recipientAlipayChannelRecipientAccountType;
-            }
-
-            if (recipientBankChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.account'] = recipientBankChannelRecipientAccount;
-            }
-
-            if (recipientBankChannelRecipientName !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.name'] = recipientBankChannelRecipientName;
-            }
-
-            if (recipientBankChannelRecipientType !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.type'] = recipientBankChannelRecipientType;
-            }
-
-            if (recipientBankChannelRecipientBankName !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_name'] = recipientBankChannelRecipientBankName;
-            }
-
-            if (recipientBankChannelRecipientBankBranch !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_branch'] = recipientBankChannelRecipientBankBranch;
-            }
-
-            if (recipientBankChannelRecipientBankProvince !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_province'] = recipientBankChannelRecipientBankProvince;
-            }
-
-            if (recipientBankChannelRecipientBankCity !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_city'] = recipientBankChannelRecipientBankCity;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 删除 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceDeleteSettlementAccount(id: string, appId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceDeleteSettlementAccount.');
-            }
-            const localVarPath = `/v1/settlement_accounts/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 查询 SettlementAccount 对象列表
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-         * @param {string} [customerId] [OPTIONAL] 客户 ID
-         * @param {string} [userId] [OPTIONAL] 商户用户 ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, userId?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/v1/settlement_accounts`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (limit !== undefined) {
-                localVarQueryParameter['limit'] = limit;
-            }
-
-            if (startingAfter !== undefined) {
-                localVarQueryParameter['starting_after'] = startingAfter;
-            }
-
-            if (endingBefore !== undefined) {
-                localVarQueryParameter['ending_before'] = endingBefore;
-            }
-
-            if (createdLt !== undefined) {
-                localVarQueryParameter['created.lt'] = createdLt;
-            }
-
-            if (createdLte !== undefined) {
-                localVarQueryParameter['created.lte'] = createdLte;
-            }
-
-            if (createdGt !== undefined) {
-                localVarQueryParameter['created.gt'] = createdGt;
-            }
-
-            if (createdGte !== undefined) {
-                localVarQueryParameter['created.gte'] = createdGte;
-            }
-
-            if (disabled !== undefined) {
-                localVarQueryParameter['disabled'] = disabled;
-            }
-
-            if (customerId !== undefined) {
-                localVarQueryParameter['customer_id'] = customerId;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 查询 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [object] 对象类型
-         * @param {string} [dataId] 分账接收方的唯一标识
-         * @param {string} [dataAppId] 分账接收方所在的应用 ID
-         * @param {string} [dataUserId] 分账接收方的用户 ID
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [dataChannel] 分账接收方的账户类型   - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [dataRecipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [dataRecipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [dataRecipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [dataRecipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [dataRecipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [dataRecipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [dataRecipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [dataRecipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [dataRecipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {number} [dataCreated] 分账接收方的创建时间
-         * @param {number} [dataUpdated] 分账接收方的更新时间
-         * @param {string} [dataObject] 对象类型
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceRetrieveSettlementAccount.');
-            }
-            const localVarPath = `/v1/settlement_accounts/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            if (object !== undefined) {
-                localVarQueryParameter['object'] = object;
-            }
-
-            if (dataId !== undefined) {
-                localVarQueryParameter['data.id'] = dataId;
-            }
-
-            if (dataAppId !== undefined) {
-                localVarQueryParameter['data.app_id'] = dataAppId;
-            }
-
-            if (dataUserId !== undefined) {
-                localVarQueryParameter['data.user_id'] = dataUserId;
-            }
-
-            if (dataChannel !== undefined) {
-                localVarQueryParameter['data.channel'] = dataChannel;
-            }
-
-            if (dataRecipientWechatpayChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.account'] = dataRecipientWechatpayChannelRecipientAccount;
-            }
-
-            if (dataRecipientWechatpayChannelRecipientName !== undefined) {
-                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.name'] = dataRecipientWechatpayChannelRecipientName;
-            }
-
-            if (dataRecipientWechatpayChannelRecipientForceCheck !== undefined) {
-                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.force_check'] = dataRecipientWechatpayChannelRecipientForceCheck;
-            }
-
-            if (dataRecipientWechatpayChannelRecipientType !== undefined) {
-                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.type'] = dataRecipientWechatpayChannelRecipientType;
-            }
-
-            if (dataRecipientWechatpayChannelRecipientAccountType !== undefined) {
-                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.account_type'] = dataRecipientWechatpayChannelRecipientAccountType;
-            }
-
-            if (dataRecipientWechatpayChannelRecipientAppId !== undefined) {
-                localVarQueryParameter['data.recipient.wechatpay_channel_recipient.app_id'] = dataRecipientWechatpayChannelRecipientAppId;
-            }
-
-            if (dataRecipientAlipayChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['data.recipient.alipay_channel_recipient.account'] = dataRecipientAlipayChannelRecipientAccount;
-            }
-
-            if (dataRecipientAlipayChannelRecipientName !== undefined) {
-                localVarQueryParameter['data.recipient.alipay_channel_recipient.name'] = dataRecipientAlipayChannelRecipientName;
-            }
-
-            if (dataRecipientAlipayChannelRecipientType !== undefined) {
-                localVarQueryParameter['data.recipient.alipay_channel_recipient.type'] = dataRecipientAlipayChannelRecipientType;
-            }
-
-            if (dataRecipientAlipayChannelRecipientAccountType !== undefined) {
-                localVarQueryParameter['data.recipient.alipay_channel_recipient.account_type'] = dataRecipientAlipayChannelRecipientAccountType;
-            }
-
-            if (dataRecipientBankChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.account'] = dataRecipientBankChannelRecipientAccount;
-            }
-
-            if (dataRecipientBankChannelRecipientName !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.name'] = dataRecipientBankChannelRecipientName;
-            }
-
-            if (dataRecipientBankChannelRecipientType !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.type'] = dataRecipientBankChannelRecipientType;
-            }
-
-            if (dataRecipientBankChannelRecipientBankName !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.bank_name'] = dataRecipientBankChannelRecipientBankName;
-            }
-
-            if (dataRecipientBankChannelRecipientBankBranch !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.bank_branch'] = dataRecipientBankChannelRecipientBankBranch;
-            }
-
-            if (dataRecipientBankChannelRecipientBankProvince !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.bank_province'] = dataRecipientBankChannelRecipientBankProvince;
-            }
-
-            if (dataRecipientBankChannelRecipientBankCity !== undefined) {
-                localVarQueryParameter['data.recipient.bank_channel_recipient.bank_city'] = dataRecipientBankChannelRecipientBankCity;
-            }
-
-            if (dataCreated !== undefined) {
-                localVarQueryParameter['data.created'] = dataCreated;
-            }
-
-            if (dataUpdated !== undefined) {
-                localVarQueryParameter['data.updated'] = dataUpdated;
-            }
-
-            if (dataObject !== undefined) {
-                localVarQueryParameter['data.object'] = dataObject;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 搜索 SettlementAccount 对象
-         * @param {string} [userId] 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/v1/settlement_accounts/search`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-            if (appId !== undefined) {
-                localVarQueryParameter['app_id'] = appId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary 更新 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [customerId] 
-         * @param {string} [userId] 
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError('id','Required parameter id was null or undefined when calling settlementServiceUpdateSettlementAccount.');
-            }
-            const localVarPath = `/v1/settlement_accounts/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication ApiKeyAuth required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("X-JUSTAP-API-KEY")
-					: configuration.apiKey;
-                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
-            }
-
-            if (customerId !== undefined) {
-                localVarQueryParameter['customer_id'] = customerId;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-            if (channel !== undefined) {
-                localVarQueryParameter['channel'] = channel;
-            }
-
-            if (recipientWechatpayChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.account'] = recipientWechatpayChannelRecipientAccount;
-            }
-
-            if (recipientWechatpayChannelRecipientName !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.name'] = recipientWechatpayChannelRecipientName;
-            }
-
-            if (recipientWechatpayChannelRecipientForceCheck !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.force_check'] = recipientWechatpayChannelRecipientForceCheck;
-            }
-
-            if (recipientWechatpayChannelRecipientType !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.type'] = recipientWechatpayChannelRecipientType;
-            }
-
-            if (recipientWechatpayChannelRecipientAccountType !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.account_type'] = recipientWechatpayChannelRecipientAccountType;
-            }
-
-            if (recipientWechatpayChannelRecipientAppId !== undefined) {
-                localVarQueryParameter['recipient.wechatpay_channel_recipient.app_id'] = recipientWechatpayChannelRecipientAppId;
-            }
-
-            if (recipientAlipayChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.account'] = recipientAlipayChannelRecipientAccount;
-            }
-
-            if (recipientAlipayChannelRecipientName !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.name'] = recipientAlipayChannelRecipientName;
-            }
-
-            if (recipientAlipayChannelRecipientType !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.type'] = recipientAlipayChannelRecipientType;
-            }
-
-            if (recipientAlipayChannelRecipientAccountType !== undefined) {
-                localVarQueryParameter['recipient.alipay_channel_recipient.account_type'] = recipientAlipayChannelRecipientAccountType;
-            }
-
-            if (recipientBankChannelRecipientAccount !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.account'] = recipientBankChannelRecipientAccount;
-            }
-
-            if (recipientBankChannelRecipientName !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.name'] = recipientBankChannelRecipientName;
-            }
-
-            if (recipientBankChannelRecipientType !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.type'] = recipientBankChannelRecipientType;
-            }
-
-            if (recipientBankChannelRecipientBankName !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_name'] = recipientBankChannelRecipientBankName;
-            }
-
-            if (recipientBankChannelRecipientBankBranch !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_branch'] = recipientBankChannelRecipientBankBranch;
-            }
-
-            if (recipientBankChannelRecipientBankProvince !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_province'] = recipientBankChannelRecipientBankProvince;
-            }
-
-            if (recipientBankChannelRecipientBankCity !== undefined) {
-                localVarQueryParameter['recipient.bank_channel_recipient.bank_city'] = recipientBankChannelRecipientBankCity;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * SettlementServiceApi - functional programming interface
- * @export
- */
-export const SettlementServiceApiFp = function(configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary 创建 SettlementAccount 对象
-         * @param {string} [appId] 
-         * @param {string} [userId] 
-         * @param {string} [customerId] 
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 删除 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceDeleteSettlementAccount(id: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1DeleteSettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceDeleteSettlementAccount(id, appId, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 查询 SettlementAccount 对象列表
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-         * @param {string} [customerId] [OPTIONAL] 客户 ID
-         * @param {string} [userId] [OPTIONAL] 商户用户 ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountListResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceListAllSettlementAccounts(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, customerId, userId, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 查询 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [object] 对象类型
-         * @param {string} [dataId] 分账接收方的唯一标识
-         * @param {string} [dataAppId] 分账接收方所在的应用 ID
-         * @param {string} [dataUserId] 分账接收方的用户 ID
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [dataChannel] 分账接收方的账户类型   - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [dataRecipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [dataRecipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [dataRecipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [dataRecipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [dataRecipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [dataRecipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [dataRecipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [dataRecipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [dataRecipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {number} [dataCreated] 分账接收方的创建时间
-         * @param {number} [dataUpdated] 分账接收方的更新时间
-         * @param {string} [dataObject] 对象类型
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientWechatpayChannelRecipientAppId, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 搜索 SettlementAccount 对象
-         * @param {string} [userId] 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountListResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceSearchSettlementAccounts(userId, appId, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @summary 更新 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [customerId] 
-         * @param {string} [userId] 
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1SettlementAccountResponse> {
-            let localVarFetchArgs = SettlementServiceApiFetchParamCreator(configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options);
-            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-    }
-};
-
-/**
- * SettlementServiceApi - factory interface
- * @export
- */
-export const SettlementServiceApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-        /**
-         * 
-         * @summary 创建 SettlementAccount 对象
-         * @param {string} [appId] 
-         * @param {string} [userId] 
-         * @param {string} [customerId] 
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 删除 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceDeleteSettlementAccount(id: string, appId?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceDeleteSettlementAccount(id, appId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 查询 SettlementAccount 对象列表
-         * @param {string} [appId] 
-         * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-         * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-         * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-         * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-         * @param {string} [customerId] [OPTIONAL] 客户 ID
-         * @param {string} [userId] [OPTIONAL] 商户用户 ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, userId?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceListAllSettlementAccounts(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, customerId, userId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 查询 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [appId] 
-         * @param {string} [object] 对象类型
-         * @param {string} [dataId] 分账接收方的唯一标识
-         * @param {string} [dataAppId] 分账接收方所在的应用 ID
-         * @param {string} [dataUserId] 分账接收方的用户 ID
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [dataChannel] 分账接收方的账户类型   - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [dataRecipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [dataRecipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [dataRecipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [dataRecipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [dataRecipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [dataRecipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [dataRecipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [dataRecipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [dataRecipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {number} [dataCreated] 分账接收方的创建时间
-         * @param {number} [dataUpdated] 分账接收方的更新时间
-         * @param {string} [dataObject] 对象类型
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientWechatpayChannelRecipientAppId, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 搜索 SettlementAccount 对象
-         * @param {string} [userId] 
-         * @param {string} [appId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceSearchSettlementAccounts(userId, appId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @summary 更新 SettlementAccount 对象
-         * @param {string} id 
-         * @param {string} [customerId] 
-         * @param {string} [userId] 
-         * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-         * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-         * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-         * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-         * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-         * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-         * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-         * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-         * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-         * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-         * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-         * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-         * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-         * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-         * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-            return SettlementServiceApiFp(configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(fetch, basePath);
-        },
-    };
-};
-
-/**
- * SettlementServiceApi - object-oriented interface
- * @export
- * @class SettlementServiceApi
- * @extends {BaseAPI}
- */
-export class SettlementServiceApi extends BaseAPI {
-    /**
-     * 
-     * @summary 创建 SettlementAccount 对象
-     * @param {string} [appId] 
-     * @param {string} [userId] 
-     * @param {string} [customerId] 
-     * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-     * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-     * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-     * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-     * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-     * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-     * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-     * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-     * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-     * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-     * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-     * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-     * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-     * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SettlementServiceApi
-     */
-    public settlementServiceCreateSettlementAccount(appId?: string, userId?: string, customerId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceCreateSettlementAccount(appId, userId, customerId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary 删除 SettlementAccount 对象
-     * @param {string} id 
-     * @param {string} [appId] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SettlementServiceApi
-     */
-    public settlementServiceDeleteSettlementAccount(id: string, appId?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceDeleteSettlementAccount(id, appId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary 查询 SettlementAccount 对象列表
-     * @param {string} [appId] 
-     * @param {number} [limit] [OPTIONAL] 限制有多少对象可以被返回，限制范围是从 1~100 项，默认是 10 项
-     * @param {string} [startingAfter] [OPTIONAL] 在分页时使用的指针，决定了列表的第一项从何处开始。假设你的一次请求返回列表的最后一项的 id 是 obj_end，你可以使用 starting_after &#x3D; obj_end 去获取下一页
-     * @param {string} [endingBefore] [OPTIONAL] 在分页时使用的指针，决定了列表的最末项在何处结束。假设你的一次请求返回列表的第一项的 id 是 obj_start，你可以使用 ending_before &#x3D; obj_start 去获取上一页
-     * @param {number} [createdLt] 大于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {boolean} [disabled] [OPTIONAL] 是否禁用，默认为 false
-     * @param {string} [customerId] [OPTIONAL] 客户 ID
-     * @param {string} [userId] [OPTIONAL] 商户用户 ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SettlementServiceApi
-     */
-    public settlementServiceListAllSettlementAccounts(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, disabled?: boolean, customerId?: string, userId?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceListAllSettlementAccounts(appId, limit, startingAfter, endingBefore, createdLt, createdLte, createdGt, createdGte, disabled, customerId, userId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary 查询 SettlementAccount 对象
-     * @param {string} id 
-     * @param {string} [appId] 
-     * @param {string} [object] 对象类型
-     * @param {string} [dataId] 分账接收方的唯一标识
-     * @param {string} [dataAppId] 分账接收方所在的应用 ID
-     * @param {string} [dataUserId] 分账接收方的用户 ID
-     * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [dataChannel] 分账接收方的账户类型   - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-     * @param {string} [dataRecipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-     * @param {string} [dataRecipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-     * @param {boolean} [dataRecipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-     * @param {string} [dataRecipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-     * @param {string} [dataRecipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-     * @param {string} [dataRecipientAlipayChannelRecipientName] 支付宝账号真实姓名
-     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [dataRecipientAlipayChannelRecipientType] 支付宝账号类型
-     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [dataRecipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-     * @param {string} [dataRecipientBankChannelRecipientAccount] 银行卡号
-     * @param {string} [dataRecipientBankChannelRecipientName] 银行卡开户名
-     * @param {string} [dataRecipientBankChannelRecipientType] 银行卡类型
-     * @param {string} [dataRecipientBankChannelRecipientBankName] 银行卡开户行编码
-     * @param {string} [dataRecipientBankChannelRecipientBankBranch] 银行卡开户支行
-     * @param {string} [dataRecipientBankChannelRecipientBankProvince] 银行卡开户省份
-     * @param {string} [dataRecipientBankChannelRecipientBankCity] 银行卡开户城市
-     * @param {number} [dataCreated] 分账接收方的创建时间
-     * @param {number} [dataUpdated] 分账接收方的更新时间
-     * @param {string} [dataObject] 对象类型
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SettlementServiceApi
-     */
-    public settlementServiceRetrieveSettlementAccount(id: string, appId?: string, object?: string, dataId?: string, dataAppId?: string, dataUserId?: string, dataChannel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', dataRecipientWechatpayChannelRecipientAccount?: string, dataRecipientWechatpayChannelRecipientName?: string, dataRecipientWechatpayChannelRecipientForceCheck?: boolean, dataRecipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientWechatpayChannelRecipientAppId?: string, dataRecipientAlipayChannelRecipientAccount?: string, dataRecipientAlipayChannelRecipientName?: string, dataRecipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', dataRecipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', dataRecipientBankChannelRecipientAccount?: string, dataRecipientBankChannelRecipientName?: string, dataRecipientBankChannelRecipientType?: string, dataRecipientBankChannelRecipientBankName?: string, dataRecipientBankChannelRecipientBankBranch?: string, dataRecipientBankChannelRecipientBankProvince?: string, dataRecipientBankChannelRecipientBankCity?: string, dataCreated?: number, dataUpdated?: number, dataObject?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceRetrieveSettlementAccount(id, appId, object, dataId, dataAppId, dataUserId, dataChannel, dataRecipientWechatpayChannelRecipientAccount, dataRecipientWechatpayChannelRecipientName, dataRecipientWechatpayChannelRecipientForceCheck, dataRecipientWechatpayChannelRecipientType, dataRecipientWechatpayChannelRecipientAccountType, dataRecipientWechatpayChannelRecipientAppId, dataRecipientAlipayChannelRecipientAccount, dataRecipientAlipayChannelRecipientName, dataRecipientAlipayChannelRecipientType, dataRecipientAlipayChannelRecipientAccountType, dataRecipientBankChannelRecipientAccount, dataRecipientBankChannelRecipientName, dataRecipientBankChannelRecipientType, dataRecipientBankChannelRecipientBankName, dataRecipientBankChannelRecipientBankBranch, dataRecipientBankChannelRecipientBankProvince, dataRecipientBankChannelRecipientBankCity, dataCreated, dataUpdated, dataObject, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary 搜索 SettlementAccount 对象
-     * @param {string} [userId] 
-     * @param {string} [appId] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SettlementServiceApi
-     */
-    public settlementServiceSearchSettlementAccounts(userId?: string, appId?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceSearchSettlementAccounts(userId, appId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @summary 更新 SettlementAccount 对象
-     * @param {string} id 
-     * @param {string} [customerId] 
-     * @param {string} [userId] 
-     * @param {'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE'} [channel]  - ALIPAY: 分账到支付宝  - WECHANTPAY: 分账到微信支付  - BANK: 分账到银行卡  - BALANCE: 分账到 justap 账户余额
-     * @param {string} [recipientWechatpayChannelRecipientAccount] openid 或者商户号，由类型决定  微信支付分账接收方账户，OPENID或者商户号
-     * @param {string} [recipientWechatpayChannelRecipientName] 微信支付分账接收方姓名或名称
-     * @param {boolean} [recipientWechatpayChannelRecipientForceCheck] 是否强制校验收款人姓名
-     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientWechatpayChannelRecipientType] 微信支付分账接收方类型
-     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientWechatpayChannelRecipientAccountType] 微信支付分账接收方账户类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-     * @param {string} [recipientWechatpayChannelRecipientAppId] 微信支付分账接收方 openid 所对应的公众号 ID
-     * @param {string} [recipientAlipayChannelRecipientAccount] 支付宝账号，账号ID或者登录邮箱
-     * @param {string} [recipientAlipayChannelRecipientName] 支付宝账号真实姓名
-     * @param {'TYPE_UNSET' | 'B2C' | 'B2B'} [recipientAlipayChannelRecipientType] 支付宝账号类型
-     * @param {'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID'} [recipientAlipayChannelRecipientAccountType] 支付宝账号类型   - ACCOUNT_TYPE_UNSET: 未设置  - MERCHANT_ID: 分账到微信商户号  - OPENID: 分账到个人微信号（父公众号的openid，或服务商的openid））  - SUB_OPENID: 分账到个人微信号，子账号的  - LOGIN_NAME: 分账到微信登录号
-     * @param {string} [recipientBankChannelRecipientAccount] 银行卡号
-     * @param {string} [recipientBankChannelRecipientName] 银行卡开户名
-     * @param {string} [recipientBankChannelRecipientType] 银行卡类型
-     * @param {string} [recipientBankChannelRecipientBankName] 银行卡开户行编码
-     * @param {string} [recipientBankChannelRecipientBankBranch] 银行卡开户支行
-     * @param {string} [recipientBankChannelRecipientBankProvince] 银行卡开户省份
-     * @param {string} [recipientBankChannelRecipientBankCity] 银行卡开户城市
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SettlementServiceApi
-     */
-    public settlementServiceUpdateSettlementAccount(id: string, customerId?: string, userId?: string, channel?: 'CHANNEL_UNKNOWN' | 'ALIPAY' | 'WECHANTPAY' | 'BANK' | 'BALANCE', recipientWechatpayChannelRecipientAccount?: string, recipientWechatpayChannelRecipientName?: string, recipientWechatpayChannelRecipientForceCheck?: boolean, recipientWechatpayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientWechatpayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientWechatpayChannelRecipientAppId?: string, recipientAlipayChannelRecipientAccount?: string, recipientAlipayChannelRecipientName?: string, recipientAlipayChannelRecipientType?: 'TYPE_UNSET' | 'B2C' | 'B2B', recipientAlipayChannelRecipientAccountType?: 'ACCOUNT_TYPE_UNSET' | 'MERCHANT_ID' | 'OPENID' | 'SUB_OPENID' | 'LOGIN_NAME' | 'USER_ID', recipientBankChannelRecipientAccount?: string, recipientBankChannelRecipientName?: string, recipientBankChannelRecipientType?: string, recipientBankChannelRecipientBankName?: string, recipientBankChannelRecipientBankBranch?: string, recipientBankChannelRecipientBankProvince?: string, recipientBankChannelRecipientBankCity?: string, options?: any) {
-        return SettlementServiceApiFp(this.configuration).settlementServiceUpdateSettlementAccount(id, customerId, userId, channel, recipientWechatpayChannelRecipientAccount, recipientWechatpayChannelRecipientName, recipientWechatpayChannelRecipientForceCheck, recipientWechatpayChannelRecipientType, recipientWechatpayChannelRecipientAccountType, recipientWechatpayChannelRecipientAppId, recipientAlipayChannelRecipientAccount, recipientAlipayChannelRecipientName, recipientAlipayChannelRecipientType, recipientAlipayChannelRecipientAccountType, recipientBankChannelRecipientAccount, recipientBankChannelRecipientName, recipientBankChannelRecipientType, recipientBankChannelRecipientBankName, recipientBankChannelRecipientBankBranch, recipientBankChannelRecipientBankProvince, recipientBankChannelRecipientBankCity, options)(this.fetch, this.basePath);
+    public customerServiceUpdateCustomer(id: string, options?: any) {
+        return CustomerServiceApiFp(this.configuration).customerServiceUpdateCustomer(id, options)(this.fetch, this.basePath);
     }
 
 }
