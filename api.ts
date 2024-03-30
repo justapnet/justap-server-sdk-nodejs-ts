@@ -181,6 +181,20 @@ export interface ExtraAlipayInvoiceInfoKeyInfo {
 /**
  * 
  * @export
+ * @interface ExtraAlipayJSAPIPayer
+ */
+export interface ExtraAlipayJSAPIPayer {
+    /**
+     * 支付宝用户ID
+     * @type {string}
+     * @memberof ExtraAlipayJSAPIPayer
+     */
+    userId: string;
+}
+
+/**
+ * 
+ * @export
  * @interface ExtraAlipaySettleInfoSettleDetailInfos
  */
 export interface ExtraAlipaySettleInfoSettleDetailInfos {
@@ -333,6 +347,32 @@ export interface ExtraWechatpaySceneInfoStoreInfo {
 /**
  * 
  * @export
+ * @interface GooglerpcStatus
+ */
+export interface GooglerpcStatus {
+    /**
+     * 
+     * @type {number}
+     * @memberof GooglerpcStatus
+     */
+    code?: number;
+    /**
+     * 
+     * @type {Array<ProtobufAny>}
+     * @memberof GooglerpcStatus
+     */
+    details?: Array<ProtobufAny>;
+    /**
+     * 
+     * @type {string}
+     * @memberof GooglerpcStatus
+     */
+    message?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface OpenApiRoyaltyDetailInfoPojoTradeFundBillItem
  */
 export interface OpenApiRoyaltyDetailInfoPojoTradeFundBillItem {
@@ -363,7 +403,7 @@ export interface OpenApiRoyaltyDetailInfoPojoTradeFundBillItem {
 }
 
 /**
- * `Any` contains an arbitrary serialized protocol buffer message along with a URL that describes the type of the serialized message.  Protobuf library provides support to pack/unpack Any values in the form of utility functions or additional generated methods of the Any type.  Example 1: Pack and unpack a message in C++.      Foo foo = ...;     Any any;     any.PackFrom(foo);     ...     if (any.UnpackTo(&foo)) {       ...     }  Example 2: Pack and unpack a message in Java.      Foo foo = ...;     Any any = Any.pack(foo);     ...     if (any.is(Foo.class)) {       foo = any.unpack(Foo.class);     }     // or ...     if (any.isSameTypeAs(Foo.getDefaultInstance())) {       foo = any.unpack(Foo.getDefaultInstance());     }  Example 3: Pack and unpack a message in Python.      foo = Foo(...)     any = Any()     any.Pack(foo)     ...     if any.Is(Foo.DESCRIPTOR):       any.Unpack(foo)       ...  Example 4: Pack and unpack a message in Go       foo := &pb.Foo{...}      any, err := anypb.New(foo)      if err != nil {        ...      }      ...      foo := &pb.Foo{}      if err := any.UnmarshalTo(foo); err != nil {        ...      }  The pack methods provided by protobuf library will by default use 'type.googleapis.com/full.type.name' as the type URL and the unpack methods only use the fully qualified type name after the last '/' in the type URL, for example \"foo.bar.com/x/y.z\" will yield type name \"y.z\".  JSON  The JSON representation of an `Any` value uses the regular representation of the deserialized, embedded message, with an additional field `@type` which contains the type URL. Example:      package google.profile;     message Person {       string first_name = 1;       string last_name = 2;     }      {       \"@type\": \"type.googleapis.com/google.profile.Person\",       \"firstName\": <string>,       \"lastName\": <string>     }  If the embedded message type is well-known and has a custom JSON representation, that representation will be embedded adding a field `value` which holds the custom JSON in addition to the `@type` field. Example (for message [google.protobuf.Duration][]):      {       \"@type\": \"type.googleapis.com/google.protobuf.Duration\",       \"value\": \"1.212s\"     }
+ * `Any` contains an arbitrary serialized protocol buffer message along with a URL that describes the type of the serialized message.  Protobuf library provides support to pack/unpack Any values in the form of utility functions or additional generated methods of the Any type.  Example 1: Pack and unpack a message in C++.      Foo foo = ...;     Any any;     any.PackFrom(foo);     ...     if (any.UnpackTo(&foo)) {       ...     }  Example 2: Pack and unpack a message in Java.      Foo foo = ...;     Any any = Any.pack(foo);     ...     if (any.is(Foo.class)) {       foo = any.unpack(Foo.class);     }  Example 3: Pack and unpack a message in Python.      foo = Foo(...)     any = Any()     any.Pack(foo)     ...     if any.Is(Foo.DESCRIPTOR):       any.Unpack(foo)       ...  Example 4: Pack and unpack a message in Go       foo := &pb.Foo{...}      any, err := anypb.New(foo)      if err != nil {        ...      }      ...      foo := &pb.Foo{}      if err := any.UnmarshalTo(foo); err != nil {        ...      }  The pack methods provided by protobuf library will by default use 'type.googleapis.com/full.type.name' as the type URL and the unpack methods only use the fully qualified type name after the last '/' in the type URL, for example \"foo.bar.com/x/y.z\" will yield type name \"y.z\".   JSON  The JSON representation of an `Any` value uses the regular representation of the deserialized, embedded message, with an additional field `@type` which contains the type URL. Example:      package google.profile;     message Person {       string first_name = 1;       string last_name = 2;     }      {       \"@type\": \"type.googleapis.com/google.profile.Person\",       \"firstName\": <string>,       \"lastName\": <string>     }  If the embedded message type is well-known and has a custom JSON representation, that representation will be embedded adding a field `value` which holds the custom JSON in addition to the `@type` field. Example (for message [google.protobuf.Duration][]):      {       \"@type\": \"type.googleapis.com/google.protobuf.Duration\",       \"value\": \"1.212s\"     }
  * @export
  * @interface ProtobufAny
  */
@@ -577,27 +617,14 @@ export enum RoyaltySettlementRoyaltySettlementStatus {
 /**
  * 
  * @export
- * @interface RpcStatus
+ * @enum {string}
  */
-export interface RpcStatus {
-    /**
-     * 
-     * @type {number}
-     * @memberof RpcStatus
-     */
-    code?: number;
-    /**
-     * 
-     * @type {Array<ProtobufAny>}
-     * @memberof RpcStatus
-     */
-    details?: Array<ProtobufAny>;
-    /**
-     * 
-     * @type {string}
-     * @memberof RpcStatus
-     */
-    message?: string;
+export enum RoyaltySettlementTransactionRoyaltyTransactionStatus {
+    UNKNOWN = <any> 'UNKNOWN',
+    SUCCESS = <any> 'SUCCESS',
+    PENDING = <any> 'PENDING',
+    FAILED = <any> 'FAILED',
+    CLOSED = <any> 'CLOSED'
 }
 
 /**
@@ -832,6 +859,24 @@ export interface V1AcquirerCloseTransactionResponse {
  * @interface V1AcquirerCreateRefundResponse
  */
 export interface V1AcquirerCreateRefundResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1AcquirerCreateRefundResponse
+     */
+    chargeId: number;
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerCreateRefundResponse
+     */
+    error?: V1ServiceError;
+    /**
+     * 退款单号
+     * @type {number}
+     * @memberof V1AcquirerCreateRefundResponse
+     */
+    refundId: number;
 }
 
 /**
@@ -894,6 +939,24 @@ export interface V1AcquirerPaymentNotifyResponse {
  * @interface V1AcquirerQueryRefundResponse
  */
 export interface V1AcquirerQueryRefundResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1AcquirerQueryRefundResponse
+     */
+    chargeId: number;
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerQueryRefundResponse
+     */
+    error?: V1ServiceError;
+    /**
+     * 退款单号
+     * @type {number}
+     * @memberof V1AcquirerQueryRefundResponse
+     */
+    refundId: number;
 }
 
 /**
@@ -1317,6 +1380,12 @@ export interface V1ChargeExtra {
      */
     alipayFace?: V1ExtraAlipayFace;
     /**
+     * 支付宝 JSAPI 支付渠道元数据
+     * @type {V1ExtraAlipayJSAPI}
+     * @memberof V1ChargeExtra
+     */
+    alipayJsapi?: V1ExtraAlipayJSAPI;
+    /**
      * 支付宝 小程序 支付渠道元数据
      * @type {V1ExtraAlipayLite}
      * @memberof V1ChargeExtra
@@ -1572,6 +1641,12 @@ export interface V1CreateChargeRequestExtra {
      * @memberof V1CreateChargeRequestExtra
      */
     alipayFace?: V1ExtraAlipayFace;
+    /**
+     * 支付宝 JSAPI 支付元数据
+     * @type {V1ExtraAlipayJSAPI}
+     * @memberof V1CreateChargeRequestExtra
+     */
+    alipayJsapi?: V1ExtraAlipayJSAPI;
     /**
      * 支付宝小程序支付元数据
      * @type {V1ExtraAlipayLite}
@@ -2554,6 +2629,26 @@ export interface V1ExtraAlipayInvoiceInfo {
      * @memberof V1ExtraAlipayInvoiceInfo
      */
     keyInfo?: ExtraAlipayInvoiceInfoKeyInfo;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1ExtraAlipayJSAPI
+ */
+export interface V1ExtraAlipayJSAPI {
+    /**
+     * 付款用户信息
+     * @type {ExtraAlipayJSAPIPayer}
+     * @memberof V1ExtraAlipayJSAPI
+     */
+    payer?: ExtraAlipayJSAPIPayer;
+    /**
+     * 预支付交易会话标识
+     * @type {string}
+     * @memberof V1ExtraAlipayJSAPI
+     */
+    prepayId: string;
 }
 
 /**
@@ -4113,10 +4208,10 @@ export interface V1ListAllRoyaltiesRequestCreated {
 export interface V1ListAllRoyaltiesResponse {
     /**
      * 分账列表
-     * @type {V1Royalty}
+     * @type {Array<V1Royalty>}
      * @memberof V1ListAllRoyaltiesResponse
      */
-    data: V1Royalty;
+    data: Array<V1Royalty>;
     /**
      * 是否还有更多
      * @type {boolean}
@@ -4500,12 +4595,6 @@ export interface V1RefundRoutingResponse {
  */
 export interface V1Royalty {
     /**
-     * 分账金额
-     * @type {number}
-     * @memberof V1Royalty
-     */
-    amount: number;
-    /**
      * Charge ID
      * @type {string}
      * @memberof V1Royalty
@@ -4584,17 +4673,11 @@ export interface V1Royalty {
      */
     royaltySettlementId: string;
     /**
-     * 
-     * @type {string}
-     * @memberof V1Royalty
-     */
-    royaltySettlementTransactionId?: string;
-    /**
      * 分账状态
-     * @type {string}
+     * @type {V1RoyaltyStatus}
      * @memberof V1Royalty
      */
-    status: string;
+    status: V1RoyaltyStatus;
     /**
      * 分账完成时间
      * @type {number}
@@ -4924,10 +5007,10 @@ export interface V1RoyaltySettlementTransaction {
     royaltySettlementId?: string;
     /**
      * 结算状态
-     * @type {string}
+     * @type {RoyaltySettlementTransactionRoyaltyTransactionStatus}
      * @memberof V1RoyaltySettlementTransaction
      */
-    status: string;
+    status?: RoyaltySettlementTransactionRoyaltyTransactionStatus;
     /**
      * 支付平分账处理流水 ID
      * @type {string}
@@ -4986,6 +5069,17 @@ export interface V1RoyaltySettlementTransactionResponse {
      * @memberof V1RoyaltySettlementTransactionResponse
      */
     object?: string;
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum V1RoyaltyStatus {
+    RoyaltyStatusUnknown = <any> 'RoyaltyStatusUnknown',
+    Processing = <any> 'Processing',
+    Finished = <any> 'Finished'
 }
 
 /**
@@ -6038,10 +6132,11 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @summary 查询 Charge 对象
          * @param {string} chargeId [REQUIRED] Charge 对象 id
          * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryCharge(chargeId: string, appId?: string, options: any = {}): FetchArgs {
+        chargeServiceQueryCharge(chargeId: string, appId?: string, merchantTradeId?: string, options: any = {}): FetchArgs {
             // verify required parameter 'chargeId' is not null or undefined
             if (chargeId === null || chargeId === undefined) {
                 throw new RequiredError('chargeId','Required parameter chargeId was null or undefined when calling chargeServiceQueryCharge.');
@@ -6065,6 +6160,10 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['app_id'] = appId;
             }
 
+            if (merchantTradeId !== undefined) {
+                localVarQueryParameter['merchant_trade_id'] = merchantTradeId;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -6080,10 +6179,11 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @summary 查询 Charge 对象
          * @param {string} chargeId [REQUIRED] Charge 对象 id
          * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryCharge2(chargeId: string, appId?: string, options: any = {}): FetchArgs {
+        chargeServiceQueryCharge2(chargeId: string, appId?: string, merchantTradeId?: string, options: any = {}): FetchArgs {
             // verify required parameter 'chargeId' is not null or undefined
             if (chargeId === null || chargeId === undefined) {
                 throw new RequiredError('chargeId','Required parameter chargeId was null or undefined when calling chargeServiceQueryCharge2.');
@@ -6101,6 +6201,57 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
 					? configuration.apiKey("X-JUSTAP-API-KEY")
 					: configuration.apiKey;
                 localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (appId !== undefined) {
+                localVarQueryParameter['app_id'] = appId;
+            }
+
+            if (merchantTradeId !== undefined) {
+                localVarQueryParameter['merchant_trade_id'] = merchantTradeId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 你可以在后台异步通知之前，通过查询接口确认支付状态。通过charge对象的id查询一个已创建的charge对象。
+         * @summary 查询 Charge 对象
+         * @param {string} merchantTradeId [OPTIONAL] 商户订单号
+         * @param {string} [chargeId] [REQUIRED] Charge 对象 id
+         * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        chargeServiceQueryCharge3(merchantTradeId: string, chargeId?: string, appId?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'merchantTradeId' is not null or undefined
+            if (merchantTradeId === null || merchantTradeId === undefined) {
+                throw new RequiredError('merchantTradeId','Required parameter merchantTradeId was null or undefined when calling chargeServiceQueryCharge3.');
+            }
+            const localVarPath = `/v1/charges/merchant_trade_id/{merchant_trade_id}`
+                .replace(`{${"merchant_trade_id"}}`, encodeURIComponent(String(merchantTradeId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication ApiKeyAuth required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-JUSTAP-API-KEY")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-JUSTAP-API-KEY"] = localVarApiKeyValue;
+            }
+
+            if (chargeId !== undefined) {
+                localVarQueryParameter['charge_id'] = chargeId;
             }
 
             if (appId !== undefined) {
@@ -7563,11 +7714,12 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 查询 Charge 对象
          * @param {string} chargeId [REQUIRED] Charge 对象 id
          * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryCharge(chargeId: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
-            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryCharge(chargeId, appId, options);
+        chargeServiceQueryCharge(chargeId: string, appId?: string, merchantTradeId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryCharge(chargeId, appId, merchantTradeId, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -7584,11 +7736,34 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @summary 查询 Charge 对象
          * @param {string} chargeId [REQUIRED] Charge 对象 id
          * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryCharge2(chargeId: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
-            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryCharge2(chargeId, appId, options);
+        chargeServiceQueryCharge2(chargeId: string, appId?: string, merchantTradeId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryCharge2(chargeId, appId, merchantTradeId, options);
+            localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 你可以在后台异步通知之前，通过查询接口确认支付状态。通过charge对象的id查询一个已创建的charge对象。
+         * @summary 查询 Charge 对象
+         * @param {string} merchantTradeId [OPTIONAL] 商户订单号
+         * @param {string} [chargeId] [REQUIRED] Charge 对象 id
+         * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        chargeServiceQueryCharge3(merchantTradeId: string, chargeId?: string, appId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeResponse> {
+            let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryCharge3(merchantTradeId, chargeId, appId, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -8221,22 +8396,36 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @summary 查询 Charge 对象
          * @param {string} chargeId [REQUIRED] Charge 对象 id
          * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryCharge(chargeId: string, appId?: string, options?: any) {
-            return DefaultApiFp(configuration).chargeServiceQueryCharge(chargeId, appId, options)(fetch, basePath);
+        chargeServiceQueryCharge(chargeId: string, appId?: string, merchantTradeId?: string, options?: any) {
+            return DefaultApiFp(configuration).chargeServiceQueryCharge(chargeId, appId, merchantTradeId, options)(fetch, basePath);
         },
         /**
          * 你可以在后台异步通知之前，通过查询接口确认支付状态。通过charge对象的id查询一个已创建的charge对象。
          * @summary 查询 Charge 对象
          * @param {string} chargeId [REQUIRED] Charge 对象 id
          * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryCharge2(chargeId: string, appId?: string, options?: any) {
-            return DefaultApiFp(configuration).chargeServiceQueryCharge2(chargeId, appId, options)(fetch, basePath);
+        chargeServiceQueryCharge2(chargeId: string, appId?: string, merchantTradeId?: string, options?: any) {
+            return DefaultApiFp(configuration).chargeServiceQueryCharge2(chargeId, appId, merchantTradeId, options)(fetch, basePath);
+        },
+        /**
+         * 你可以在后台异步通知之前，通过查询接口确认支付状态。通过charge对象的id查询一个已创建的charge对象。
+         * @summary 查询 Charge 对象
+         * @param {string} merchantTradeId [OPTIONAL] 商户订单号
+         * @param {string} [chargeId] [REQUIRED] Charge 对象 id
+         * @param {string} [appId] [REQUIRED] 应用 id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        chargeServiceQueryCharge3(merchantTradeId: string, chargeId?: string, appId?: string, options?: any) {
+            return DefaultApiFp(configuration).chargeServiceQueryCharge3(merchantTradeId, chargeId, appId, options)(fetch, basePath);
         },
         /**
          * 返回之前创建过 charge 对象的一个列表。列表是按创建时间进行排序，总是将最新的 charge 对象显示在最前。如果不设置 created 参数，默认查询近一个月的数据；设置了 created 参数，会按照对应的时间段查询。
@@ -8678,12 +8867,13 @@ export class DefaultApi extends BaseAPI {
      * @summary 查询 Charge 对象
      * @param {string} chargeId [REQUIRED] Charge 对象 id
      * @param {string} [appId] [REQUIRED] 应用 id
+     * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceQueryCharge(chargeId: string, appId?: string, options?: any) {
-        return DefaultApiFp(this.configuration).chargeServiceQueryCharge(chargeId, appId, options)(this.fetch, this.basePath);
+    public chargeServiceQueryCharge(chargeId: string, appId?: string, merchantTradeId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).chargeServiceQueryCharge(chargeId, appId, merchantTradeId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -8691,12 +8881,27 @@ export class DefaultApi extends BaseAPI {
      * @summary 查询 Charge 对象
      * @param {string} chargeId [REQUIRED] Charge 对象 id
      * @param {string} [appId] [REQUIRED] 应用 id
+     * @param {string} [merchantTradeId] [OPTIONAL] 商户订单号
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceQueryCharge2(chargeId: string, appId?: string, options?: any) {
-        return DefaultApiFp(this.configuration).chargeServiceQueryCharge2(chargeId, appId, options)(this.fetch, this.basePath);
+    public chargeServiceQueryCharge2(chargeId: string, appId?: string, merchantTradeId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).chargeServiceQueryCharge2(chargeId, appId, merchantTradeId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 你可以在后台异步通知之前，通过查询接口确认支付状态。通过charge对象的id查询一个已创建的charge对象。
+     * @summary 查询 Charge 对象
+     * @param {string} merchantTradeId [OPTIONAL] 商户订单号
+     * @param {string} [chargeId] [REQUIRED] Charge 对象 id
+     * @param {string} [appId] [REQUIRED] 应用 id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public chargeServiceQueryCharge3(merchantTradeId: string, chargeId?: string, appId?: string, options?: any) {
+        return DefaultApiFp(this.configuration).chargeServiceQueryCharge3(merchantTradeId, chargeId, appId, options)(this.fetch, this.basePath);
     }
 
     /**
