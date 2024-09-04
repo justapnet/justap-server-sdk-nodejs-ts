@@ -195,6 +195,26 @@ export interface ExtraAlipayJSAPIPayer {
 /**
  * 
  * @export
+ * @interface ExtraAlipayPageAlipayDirectPayForm
+ */
+export interface ExtraAlipayPageAlipayDirectPayForm {
+    /**
+     * [ONLY IN RESPONSE] 表单提交地址
+     * @type {string}
+     * @memberof ExtraAlipayPageAlipayDirectPayForm
+     */
+    formAction: string;
+    /**
+     * [ONLY IN RESPONSE] 表单字段
+     * @type {string}
+     * @memberof ExtraAlipayPageAlipayDirectPayForm
+     */
+    formFields: string;
+}
+
+/**
+ * 
+ * @export
  * @interface ExtraAlipaySettleInfoSettleDetailInfos
  */
 export interface ExtraAlipaySettleInfoSettleDetailInfos {
@@ -234,6 +254,17 @@ export interface ExtraAlipaySettleInfoSettleDetailInfos {
      * @memberof ExtraAlipaySettleInfoSettleDetailInfos
      */
     transInType?: string;
+}
+
+/**
+ * 
+ * @export
+ * @enum {string}
+ */
+export enum ExtraUnionPayCardlessQuickPayCardType {
+    CardTypeUnset = <any> 'CardTypeUnset',
+    Credit = <any> 'Credit',
+    Debit = <any> 'Debit'
 }
 
 /**
@@ -807,7 +838,7 @@ export interface SettlementAccountRecipientYsepayMerchantRecipient {
 }
 
 /**
- * - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+ * - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
  * @export
  * @enum {string}
  */
@@ -829,7 +860,9 @@ export enum Tradev1Channel {
     WechatpayLite = <any> 'WechatpayLite',
     WechatpayFace = <any> 'WechatpayFace',
     WechatpayScan = <any> 'WechatpayScan',
-    UnionPayQr = <any> 'UnionPayQr'
+    UnionPayQr = <any> 'UnionPayQr',
+    UnionPayCardlessQuickPay = <any> 'UnionPayCardlessQuickPay',
+    UnionPayAgreementQuickPay = <any> 'UnionPayAgreementQuickPay'
 }
 
 /**
@@ -931,6 +964,18 @@ export interface V1AcquirerCreateTransactionResponse {
  * @interface V1AcquirerPaymentNotifyResponse
  */
 export interface V1AcquirerPaymentNotifyResponse {
+    /**
+     * 支付单 ID
+     * @type {number}
+     * @memberof V1AcquirerPaymentNotifyResponse
+     */
+    chargeId: number;
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerPaymentNotifyResponse
+     */
+    error?: V1ServiceError;
 }
 
 /**
@@ -1007,6 +1052,18 @@ export interface V1AcquirerRefundNotifyResponse {
  * @interface V1AcquirerRoyaltyNotifyResponse
  */
 export interface V1AcquirerRoyaltyNotifyResponse {
+    /**
+     * 
+     * @type {V1ServiceError}
+     * @memberof V1AcquirerRoyaltyNotifyResponse
+     */
+    error?: V1ServiceError;
+    /**
+     * 分账单号
+     * @type {number}
+     * @memberof V1AcquirerRoyaltyNotifyResponse
+     */
+    royaltyId: number;
 }
 
 /**
@@ -1416,6 +1473,12 @@ export interface V1ChargeExtra {
      */
     alipayWap?: V1ExtraAlipayWap;
     /**
+     * 银联无卡快捷支付渠道元数据
+     * @type {V1ExtraUnionPayCardlessQuickPay}
+     * @memberof V1ChargeExtra
+     */
+    unionpayCardlessQuickPay?: V1ExtraUnionPayCardlessQuickPay;
+    /**
      * 微信支付 App 支付渠道元数据
      * @type {V1ExtraWechatpayApp}
      * @memberof V1ChargeExtra
@@ -1610,6 +1673,12 @@ export interface V1CreateChargeRequest {
      */
     notifyUrl: string;
     /**
+     * [OPTIONAL] 支付来源。固定值: DEFAULT
+     * @type {string}
+     * @memberof V1CreateChargeRequest
+     */
+    source: string;
+    /**
      * [REQUIRED] 物品或服务名称（交易标题）
      * @type {string}
      * @memberof V1CreateChargeRequest
@@ -1677,6 +1746,12 @@ export interface V1CreateChargeRequestExtra {
      * @memberof V1CreateChargeRequestExtra
      */
     alipayWap?: V1ExtraAlipayWap;
+    /**
+     * 银联无卡快捷支付元数据
+     * @type {V1ExtraUnionPayCardlessQuickPay}
+     * @memberof V1CreateChargeRequestExtra
+     */
+    unionpayCardlessQuickPay?: V1ExtraUnionPayCardlessQuickPay;
     /**
      * 微信支付 APP 支付元数据
      * @type {V1ExtraWechatpayApp}
@@ -1867,6 +1942,18 @@ export interface V1CreateRefundRequest {
      * @memberof V1CreateRefundRequest
      */
     metadata?: { [key: string]: string; };
+    /**
+     * [OPTIONAL] 接受通知服务器所在区域，为确保消息能够送达，请选择服务器所在国家的国家码。如不填默认为 CN
+     * @type {string}
+     * @memberof V1CreateRefundRequest
+     */
+    notificationArea: string;
+    /**
+     * [OPTIONAL] 退款成功后的异步通知地址。
+     * @type {string}
+     * @memberof V1CreateRefundRequest
+     */
+    notifyUrl?: string;
 }
 
 /**
@@ -2788,6 +2875,12 @@ export interface V1ExtraAlipayPage {
      */
     businessParams: number;
     /**
+     * 
+     * @type {ExtraAlipayPageAlipayDirectPayForm}
+     * @memberof V1ExtraAlipayPage
+     */
+    directPayForm?: ExtraAlipayPageAlipayDirectPayForm;
+    /**
      * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayPage
@@ -3332,6 +3425,12 @@ export interface V1ExtraAlipayWap {
      */
     businessParams: string;
     /**
+     * 
+     * @type {ExtraAlipayPageAlipayDirectPayForm}
+     * @memberof V1ExtraAlipayWap
+     */
+    directPayForm?: ExtraAlipayPageAlipayDirectPayForm;
+    /**
      * 禁用渠道
      * @type {string}
      * @memberof V1ExtraAlipayWap
@@ -3421,6 +3520,74 @@ export interface V1ExtraAlipayWap {
      * @memberof V1ExtraAlipayWap
      */
     voucherDetailList?: V1ExtraAlipayVoucherDetailList;
+}
+
+/**
+ * 
+ * @export
+ * @interface V1ExtraUnionPayCardlessQuickPay
+ */
+export interface V1ExtraUnionPayCardlessQuickPay {
+    /**
+     * 银行卡类型
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    bankAccountType: string;
+    /**
+     * 银行名称
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    bankName: string;
+    /**
+     * 银行类型
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    bankType: string;
+    /**
+     * 付款方银行卡号
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    buyerCardNumber: string;
+    /**
+     * 付款方身份证号
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    buyerIdNo: string;
+    /**
+     * 付款方银行预留手机号
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    buyerMobile: string;
+    /**
+     * 付款方银行姓名
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    buyerName: string;
+    /**
+     * 信用卡背面的末三位数字
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    creditCardCvn2: string;
+    /**
+     * 信用卡有效期
+     * @type {string}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    creditCardExpiry: string;
+    /**
+     * 支持的银行卡类型
+     * @type {ExtraUnionPayCardlessQuickPayCardType}
+     * @memberof V1ExtraUnionPayCardlessQuickPay
+     */
+    supportCardType: ExtraUnionPayCardlessQuickPayCardType;
 }
 
 /**
@@ -6280,7 +6447,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6289,7 +6456,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
+        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
             const localVarPath = `/transaction/v1/charges`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -6386,7 +6553,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -6395,7 +6562,7 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
+        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options: any = {}): FetchArgs {
             const localVarPath = `/v1/charges`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -7787,7 +7954,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -7796,7 +7963,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
+        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
             let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryChargeList(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -7821,7 +7988,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -7830,7 +7997,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
+        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<V1ChargeListResponse> {
             let localVarFetchArgs = DefaultApiFetchParamCreator(configuration).chargeServiceQueryChargeList2(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options);
             localVarFetchArgs = Object.assign({}, localVarFetchArgs, getSign(configuration, localVarFetchArgs));
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -8439,7 +8606,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -8448,7 +8615,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+        chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
             return DefaultApiFp(configuration).chargeServiceQueryChargeList(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(fetch, basePath);
         },
         /**
@@ -8463,7 +8630,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
          * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+         * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
          * @param {boolean} [paid] [OPTIONAL] 是否已付款
          * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
          * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -8472,7 +8639,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+        chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
             return DefaultApiFp(configuration).chargeServiceQueryChargeList2(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(fetch, basePath);
         },
         /**
@@ -8916,7 +9083,7 @@ export class DefaultApi extends BaseAPI {
      * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
      * @param {boolean} [paid] [OPTIONAL] 是否已付款
      * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
      * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -8926,7 +9093,7 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+    public chargeServiceQueryChargeList(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
         return DefaultApiFp(this.configuration).chargeServiceQueryChargeList(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(this.fetch, this.basePath);
     }
 
@@ -8942,7 +9109,7 @@ export class DefaultApi extends BaseAPI {
      * @param {number} [createdLte] 大于或等于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGt] 小于 charge 对象的创建时间，用 Unix 时间戳表示
      * @param {number} [createdGte] 小于或等于 charge 对象的创建时间，用 Unix 时间戳表示
-     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）
+     * @param {'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay'} [channel] [OPTIONAL] 渠道名称   - BALANCE: 余额支付  - AlipayQR: 支付宝扫码支付  - AlipayScan: 支付宝条码支付  - AlipayApp: 支付宝 App 支付  - AlipayWap: 支付宝手机网站支付  - AlipayPage: 支付宝电脑网站支付  - AlipayFace: 支付宝刷脸支付  - AlipayLite: 支付宝小程序支付  - AlipayJSAPI: 支付宝 JSAPI 支付  - WechatpayApp: 微信 App 支付  - WechatpayJSAPI: 微信 JSAPI 支付  - WechatpayH5: 微信 H5 支付  - WechatpayNative: 微信 Native 支付  - WechatpayLite: 微信小程序支付  - WechatpayFace: 刷脸支付  - WechatpayScan: 微信付款码支付  - UnionPayQr: 银联二维码支付（云闪付扫码）  - UnionPayCardlessQuickPay: 银联无卡快捷支付  - UnionPayAgreementQuickPay: 银联协议快捷支付
      * @param {boolean} [paid] [OPTIONAL] 是否已付款
      * @param {boolean} [refunded] [OPTIONAL] 是否存在退款信息，无论退款是否成功。
      * @param {boolean} [reversed] [OPTIONAL] 是否已撤销
@@ -8952,7 +9119,7 @@ export class DefaultApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
+    public chargeServiceQueryChargeList2(appId?: string, limit?: number, startingAfter?: string, endingBefore?: string, merchantTradeId?: string, createdLt?: number, createdLte?: number, createdGt?: number, createdGte?: number, channel?: 'CHANNEL_INVALID_UNSPECIFIED' | 'BALANCE' | 'AlipayQR' | 'AlipayScan' | 'AlipayApp' | 'AlipayWap' | 'AlipayPage' | 'AlipayFace' | 'AlipayLite' | 'AlipayJSAPI' | 'WechatpayApp' | 'WechatpayJSAPI' | 'WechatpayH5' | 'WechatpayNative' | 'WechatpayLite' | 'WechatpayFace' | 'WechatpayScan' | 'UnionPayQr' | 'UnionPayCardlessQuickPay' | 'UnionPayAgreementQuickPay', paid?: boolean, refunded?: boolean, reversed?: boolean, closed?: boolean, expired?: boolean, options?: any) {
         return DefaultApiFp(this.configuration).chargeServiceQueryChargeList2(appId, limit, startingAfter, endingBefore, merchantTradeId, createdLt, createdLte, createdGt, createdGte, channel, paid, refunded, reversed, closed, expired, options)(this.fetch, this.basePath);
     }
 
